@@ -2,7 +2,7 @@
 
 import sys, argparse
 
-# monitoring return codes
+# monitoring plugin return codes
 OK = 0
 WARNING = 1
 CRITICAL = 2
@@ -13,6 +13,7 @@ returnCode = UNKNOWN
 
 # parse arguments
 argumentParser = argparse.ArgumentParser()
+
 argumentParser.add_argument(
     '-h', '--hostname', default='localhost',
     help='host with systemd journal gateway (default "localhost")')

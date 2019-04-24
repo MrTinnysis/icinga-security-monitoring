@@ -1,0 +1,24 @@
+object CheckCommand "my-ping" {
+  command = [ PluginDir + "/check_ping", "-H", "$ping_address$" ]
+
+  arguments = {
+    "-w" = "$ping_wrta$,$ping_wpl$%"
+    "-c" = "$ping_crta$,$ping_cpl$%"
+    "-p" = "$ping_packets$"
+  }
+
+  vars.ping_address = "$address$"
+
+  vars.ping_wrta = 100
+  vars.ping_wpl = 5
+
+  vars.ping_crta = 250
+  vars.ping_cpl = 10
+
+  vars.ping_packets = 5
+}
+
+object Host "router" {
+  check_command = "my-ping"
+  address = "10.0.0.1"
+}
