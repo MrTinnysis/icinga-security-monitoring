@@ -9,15 +9,15 @@ CRITICAL = 2
 UNKNOWN = 3
 
 # defaults
-returnCode = OK
+returnCode = UNKNOWN
 
 # parse arguments
 argumentParser = argparse.ArgumentParser()
 argumentParser.add_argument(
-    '-H', '--hostname', default='localhost',
+    '-h', '--hostname', default='localhost',
     help='host with systemd journal gateway (default "localhost")')
 argumentParser.add_argument(
-    '-b', '--port', default='19531',
+    '-p', '--port', default='19531',
     help='the gateway port (default "19531")')
 
 arguments = argumentParser.parse_args()

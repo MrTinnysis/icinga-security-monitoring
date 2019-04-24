@@ -1,2 +1,2 @@
 # Project 2
-systemd journal -> icinga2
+icinga2 -> systemd journal
