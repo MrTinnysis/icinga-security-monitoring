@@ -1,10 +1,10 @@
 #!/bin/python
 
-import re
-import time
-from systemd.journal import Reader
+import re, time
+from datetime import datetime
+from systemd import journal
 
-class JournalReader(Reader):
+class JournalReader(journal.Reader):
 	
 	def __init__(self, path=None):
 		super(JournalReader, self).__init__(path=path)
@@ -17,13 +17,16 @@ class JournalReader(Reader):
 		start_time = time.time()
 		match = re.match('(\d{1,2})([dhm])', timeframe)
 		
-		if !match:
+		if not match:
 			raise InvalidTimeframeException()
 		else:
-			quantity = min(match.group(0), 1)
-			identifier = match.group(1)
+			quantity = min(int(match.group(1)), 1)
+			identifier = match.group(2)
 			
 			start_time -= quantity * self._toSeconds(identifier)
+			
+			
+			print("setting timeframe: %s" % (datetime.fromtimestamp(start_time)), end="\n")
 			
 			self.seek_realtime(start_time)
 			

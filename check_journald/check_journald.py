@@ -1,7 +1,7 @@
 #!/bin/python
 
 import re, sys, argparse
-from monitoringplugin.JournalReader import JournalReader
+from JournalReader import JournalReader
 
 # define period
 def period(string):
@@ -26,10 +26,10 @@ def main():
 		'-v', '--verbose', default=False,
 		help='verbose output')
 	argumentParser.add_argument(
-		'-w', '--warning', metavar='RANGE', default='',
+		'-w', '--warning', metavar='RANGE', default=range(0),
 		help='return warning if count of found logs is outside RANGE')
 	argumentParser.add_argument(
-		'-c', '--critical', metavar='RANGE', default='',
+		'-c', '--critical', metavar='RANGE', default=range(0),
 		help='return critical if count of found logs is outside RANGE')
 	argumentParser.add_argument(
 		'--hostname', metavar='HOST', default='localhost',
@@ -50,33 +50,41 @@ def main():
 	arguments = argumentParser.parse_args()
 
 	print(arguments)
-
-	#setup journal reader
-	journal = JournalReader(arguments.path)
 	
-	if arguments.matches:
-		journal.add_matches(arguments.matches)
-	
-	journal.set_timeframe(arguments.period)
-	
-	#parse journal
-	ctr = 0
-	for entry in journal:
-		ctr += 1
-		if arguments.verbose:
-			print(entry["MESSAGE"], end="\n")
-			
-	if arguments.verbose:
-		print(ctr, end="\n")
-	
-	if ctr in arguments.warning:
-		returnCode = WARNING
+	if arguments.hostname == "localhost":
+		#setup journal reader
+		journal = JournalReader(arguments.path)
 		
-	if ctr in arguments.critical:
-		returnCode = CRITICAL
-	
-	if returnCode == UNKNOWN:
+		if arguments.matches:
+			journal.add_matches(arguments.matches)
+		
+		
+		journal.set_timeframe(arguments.period)
+		
+		#parse journal
+		ctr = 0
+		for entry in journal:
+			if arguments.verbose:
+				print(str(entry["__REALTIME_TIMESTAMP"]) + ": " + entry["MESSAGE"], end="\n")
+			ctr += 1
+		
+		
 		returnCode = OK
+	
+		if ctr in arguments.warning:
+			returnCode = WARNING
+			
+			
+		if ctr in arguments.critical:
+			returnCode = CRITICAL
+			
+			
+		#TODO: Check Performance info format
+		print(ctr, end="\n")
+	else:
+		#TODO: Call remote plugin
+		pass
+		
 	
 	sys.exit(returnCode)
 
