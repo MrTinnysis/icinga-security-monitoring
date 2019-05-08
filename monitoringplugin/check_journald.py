@@ -39,14 +39,14 @@ argumentParser.add_argument(
     '--port', metavar='NUMBER', default='19531',
     help='the gateway port (default "19531")')
 argumentParser.add_argument(
-    '--path', default='',
+    '--path',
     help='path to journal log folder')
 argumentParser.add_argument(
     '--matches', nargs='+',
     help='matches for logparse')
 argumentParser.add_argument(
     '--period', metavar='NUMBER', default='1h', type=period,
-    help='check log of last period - format 90m')
+    help='check log of last period (default: "1h", format 1-99 m/h/d)')
 
 arguments = argumentParser.parse_args()
 
