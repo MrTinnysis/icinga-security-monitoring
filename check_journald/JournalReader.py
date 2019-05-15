@@ -26,7 +26,7 @@ class JournalReader(journal.Reader):
 			start_time -= quantity * self._toSeconds(identifier)
 			
 			
-			print("setting timeframe: %s" % (datetime.fromtimestamp(start_time)), end="\n")
+			#print("setting timeframe: %s" % (datetime.fromtimestamp(start_time)), end="\n")
 			
 			self.seek_realtime(start_time)
 			

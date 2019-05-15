@@ -1,6 +1,6 @@
 #!/bin/python
 
-import re, sys, argparse
+import re, sys, argparse, os
 from JournalReader import JournalReader
 
 # define period
@@ -30,10 +30,10 @@ def main():
 		'-v', '--verbose', default=False,
 		help='verbose output')
 	argumentParser.add_argument(
-		'-w', '--warning', metavar='RANGE', default=2,
+		'-w', '--warning', metavar='RANGE', default=1,
 		help='return warning if count of found logs is outside RANGE')
 	argumentParser.add_argument(
-		'-c', '--critical', metavar='RANGE', default=1,
+		'-c', '--critical', metavar='RANGE', default=2,
 		help='return critical if count of found logs is outside RANGE')
 	argumentParser.add_argument(
 		'--hostname', metavar='HOST', default='localhost',
@@ -57,10 +57,11 @@ def main():
 	arguments = argumentParser.parse_args()
 
 	print(arguments)
+	print(os.getuid())
 	
 	if arguments.hostname == "localhost":
 		#setup journal reader
-		journal = JournalReader(arguments.path)
+		journal = JournalReader()
 		
 		if arguments.matches:
 			journal.add_matches(arguments.matches)
@@ -94,11 +95,11 @@ def main():
 			else:
 				ctr += 1
 		
-		print(ctr)
+		
 		returnCode = OK
 		
 		if type(ctr) is dict:
-			for key, val in ctr:
+			for key, val in ctr.items():
 				if val in range(arguments.warning, arguments.critical-1):
 					returnCode = WARNING
 				
