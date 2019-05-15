@@ -20,15 +20,16 @@ class JournalReader(journal.Reader):
 		if not match:
 			raise InvalidTimeframeException()
 		else:
-			quantity = min(int(match.group(1)), 1)
+			quantity = max(int(match.group(1)), 1)
 			identifier = match.group(2)
 			
 			start_time -= quantity * self._toSeconds(identifier)
 			
 			
-			#print("setting timeframe: %s" % (datetime.fromtimestamp(start_time)), end="\n")
-			
+			print("Accessing log entries after: %s" % (datetime.fromtimestamp(start_time)), end="\n")
+			print(start_time)
 			self.seek_realtime(start_time)
+			print(str(self.get_next()["__REALTIME_TIMESTAMP"]))
 			
 	def _toSeconds(self, identifier):
 		if identifier == "d":

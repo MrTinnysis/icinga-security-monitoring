@@ -1,18 +1,18 @@
-#!/bin/python
+#!/usr/bin/env python3
 
 import re, sys, argparse, os
 from JournalReader import JournalReader
 
 # define period
 def period(string):
-    if not re.search("^[1-9]{1,2}[m,h,d]$", string):
+    if not re.search("^\d{1,2}[dhm]$", string):
         msg = "%r is not a valid period" % string
         raise argparse.ArgumentTypeError(msg)
     return string
 	
 def printPerformanceData(label, ctr, warn, crit):
 	data = ["%s=%s" % (label, str(ctr)), str(warn), str(crit)]
-	print(";".join(data))
+	print("|" + ";".join(data))
 
 def main():
 	# monitoring plugin return codes
@@ -27,13 +27,13 @@ def main():
 	argumentParser = argparse.ArgumentParser()
 
 	argumentParser.add_argument(
-		'-v', '--verbose', default=False,
+		'-v', '--verbose', nargs="?", const=True, default=False,
 		help='verbose output')
 	argumentParser.add_argument(
-		'-w', '--warning', metavar='RANGE', default=1,
+		'-w', '--warning', metavar='NUMBER', type=int, default=1,
 		help='return warning if count of found logs is outside RANGE')
 	argumentParser.add_argument(
-		'-c', '--critical', metavar='RANGE', default=2,
+		'-c', '--critical', metavar='NUMBER', type=int, default=2,
 		help='return critical if count of found logs is outside RANGE')
 	argumentParser.add_argument(
 		'--hostname', metavar='HOST', default='localhost',
@@ -57,7 +57,7 @@ def main():
 	arguments = argumentParser.parse_args()
 
 	print(arguments)
-	print(os.getuid())
+	#print(os.getuid())
 	
 	if arguments.hostname == "localhost":
 		#setup journal reader
@@ -71,19 +71,22 @@ def main():
 		
 		if arguments.regex:
 			regex = re.compile(arguments.regex)
-			print(regex)
+			#print(regex)
 			# filter journal by regex
-			journal = [entry for entry in journal if regex.search(entry["MESSAGE"])]
+			#entries = [entry for entry in journal if regex.search(entry["MESSAGE"])]
+			#journal.close()
 			
 			if regex.groups == 1:
 				ctr = {}
 			else:
 				ctr = 0
 		else:
+			#entries = [entry for entry in journal]
+			#journal.close()
 			ctr = 0
 		
 		
-		#parse journal
+		#count journal entries
 		for entry in journal:
 			if arguments.verbose:
 				print(str(entry["__REALTIME_TIMESTAMP"]) + ": " + entry["MESSAGE"], end="\n")
