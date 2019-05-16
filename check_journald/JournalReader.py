@@ -1,7 +1,7 @@
 #!/bin/python
 
-import re, time
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from systemd import journal
 
 class JournalReader(journal.Reader):
@@ -14,7 +14,7 @@ class JournalReader(journal.Reader):
 			self.add_match(match)
 		
 	def set_timeframe(self, timeframe):
-		start_time = time.time()
+		start_time = datetime.now()
 		match = re.match('(\d{1,2})([dhm])', timeframe)
 		
 		if not match:
@@ -23,21 +23,20 @@ class JournalReader(journal.Reader):
 			quantity = max(int(match.group(1)), 1)
 			identifier = match.group(2)
 			
-			start_time -= quantity * self._toSeconds(identifier)
+			start_time -= self._timeDelta(quantity, identifier)
 			
 			
-			print("Accessing log entries after: %s" % (datetime.fromtimestamp(start_time)), end="\n")
-			print(start_time)
+			print("Accessing log entries after: %s" % (start_time), end="\n")
 			self.seek_realtime(start_time)
-			print(str(self.get_next()["__REALTIME_TIMESTAMP"]))
 			
-	def _toSeconds(self, identifier):
+			
+	def _timeDelta(self, quantity, identifier):
 		if identifier == "d":
-			return 24 * 60**2
+			return timedelta(days=quantity);
 		elif identifier == "h":
-			return 60**2
+			return timedelta(hours=quantity);
 		elif identifier == "m":
-			return 60
+			return timedelta(minutes=quantity);
 		else:
 			raise InvalidTimeframeException()
 		

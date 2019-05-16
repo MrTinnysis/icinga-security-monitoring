@@ -59,69 +59,65 @@ def main():
 	print(arguments)
 	#print(os.getuid())
 	
-	if arguments.hostname == "localhost":
-		#setup journal reader
-		journal = JournalReader()
+	#setup journal reader
+	journal = JournalReader()
+	
+	if arguments.matches:
+		journal.add_matches(arguments.matches)
+	
+	
+	journal.set_timeframe(arguments.period)
+	
+	if arguments.regex:
+		regex = re.compile(arguments.regex)
+		#print(regex)
+		# filter journal by regex
+		entries = [entry for entry in journal if regex.search(entry["MESSAGE"])]
+		journal.close()
 		
-		if arguments.matches:
-			journal.add_matches(arguments.matches)
-		
-		
-		journal.set_timeframe(arguments.period)
-		
-		if arguments.regex:
-			regex = re.compile(arguments.regex)
-			#print(regex)
-			# filter journal by regex
-			#entries = [entry for entry in journal if regex.search(entry["MESSAGE"])]
-			#journal.close()
-			
-			if regex.groups == 1:
-				ctr = {}
-			else:
-				ctr = 0
+		if regex.groups == 1:
+			ctr = {}
 		else:
-			#entries = [entry for entry in journal]
-			#journal.close()
 			ctr = 0
-		
-		
-		#count journal entries
-		for entry in journal:
-			if arguments.verbose:
-				print(str(entry["__REALTIME_TIMESTAMP"]) + ": " + entry["MESSAGE"], end="\n")
-			
-			if type(ctr) is dict:
-				match = regex.search(entry["MESSAGE"])
-				ctr.setdefault(match.group(1), 0)
-				ctr[match.group(1)] += 1
-			else:
-				ctr += 1
-		
-		
-		returnCode = OK
+	else:
+		entries = [entry for entry in journal]
+		journal.close()
+		ctr = 0
+	
+	
+	#count journal entries
+	for entry in entries:
+		if arguments.verbose:
+			print(str(entry["__REALTIME_TIMESTAMP"]) + ": " + entry["MESSAGE"], end="\n")
 		
 		if type(ctr) is dict:
-			for key, val in ctr.items():
-				if val in range(arguments.warning, arguments.critical-1):
-					returnCode = WARNING
-				
-				if val >= arguments.critical:
-					returnCode = CRITICAL
-			
-				printPerformanceData(key, val, arguments.warning, arguments.critical)
+			match = regex.search(entry["MESSAGE"])
+			ctr.setdefault(match.group(1), 0)
+			ctr[match.group(1)] += 1
 		else:
-			if ctr in range(arguments.warning, arguments.critical-1):
-				returnCode = WARNING
-				
-				
-			if ctr >= arguments.critical:
-				returnCode = CRITICAL
+			ctr += 1
+	
+	
+	returnCode = OK
+	
+	if type(ctr) is dict:
+		for key, val in ctr.items():
+			if val in range(arguments.warning, arguments.critical-1):
+				returnCode = max(returnCode, WARNING)
+			
+			if val >= arguments.critical:
+				returnCode = max(returnCode, CRITICAL)
 		
-			printPerformanceData("count", ctr, arguments.warning, arguments.critical)
+			printPerformanceData(key, val, arguments.warning, arguments.critical)
 	else:
-		#TODO: Call remote plugin
-		pass
+		if ctr in range(arguments.warning, arguments.critical-1):
+			returnCode = WARNING
+			
+			
+		if ctr >= arguments.critical:
+			returnCode = CRITICAL
+	
+		printPerformanceData("count", ctr, arguments.warning, arguments.critical)
 		
 	
 	sys.exit(returnCode)
