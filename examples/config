@@ -1,24 +1,40 @@
-object CheckCommand "my-ping" {
-  command = [ PluginDir + "/check_ping", "-H", "$ping_address$" ]
+/* Example config */
+/* Command config: /etc/icinga2/conf.d/commands.conf */
+object CheckCommand "nrpe_check_journald" {
+    command = [ PluginDir + "/check_nrpe" ]
 
-  arguments = {
-    "-w" = "$ping_wrta$,$ping_wpl$%"
-    "-c" = "$ping_crta$,$ping_cpl$%"
-    "-p" = "$ping_packets$"
-  }
-
-  vars.ping_address = "$address$"
-
-  vars.ping_wrta = 100
-  vars.ping_wpl = 5
-
-  vars.ping_crta = 250
-  vars.ping_cpl = 10
-
-  vars.ping_packets = 5
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-H" = {
+            required = true
+            value = "check_journald"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_journald_arguments$"
+            order = 3
+        }
+    }
 }
 
-object Host "router" {
-  check_command = "my-ping"
-  address = "10.0.0.1"
+/* Host config: /etc/icinga2/conf.d/hosts.conf */
+object Host "RGServer" {
+    import "generic-host"
+
+    address = "91.214.169.165"
+}
+
+/* Service config: /etc/icinga2/conf.d/services.conf */
+apply Service "Failed SSH Logins" {
+    import "generic-service"
+
+    check_command = "nrpe_check_journald"
+
+    vars.check_journald_arguments = "--warnig 5 --critical 10 --matches SYSLOG_IDENTIFIER=sshd --regex \"Failed assword for .* from (.+) port\""
+
+    assign where host.name == "RGServer"
 }
