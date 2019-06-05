@@ -35,12 +35,12 @@ def main():
 	argumentParser.add_argument(
 		'-c', '--critical', metavar='NUMBER', type=int, default=2,
 		help='return critical if count of found logs is outside RANGE')
-	argumentParser.add_argument(
-		'--hostname', metavar='HOST', default='localhost',
-		help='host with systemd journal gateway or localhost for direct access (default "localhost")')
-	argumentParser.add_argument(
-		'--port', metavar='NUMBER', default='19531',
-		help='the gateway port (default "19531")')
+	#argumentParser.add_argument(
+	#	'--hostname', metavar='HOST', default='localhost',
+	#	help='host with systemd journal gateway or localhost for direct access (default "localhost")')
+	#argumentParser.add_argument(
+	#	'--port', metavar='NUMBER', default='19531',
+	#	help='the gateway port (default "19531")')
 	argumentParser.add_argument(
 		'--path',
 		help='path to journal log folder')
@@ -58,9 +58,9 @@ def main():
 
 	print(arguments)
 	#print(os.getuid())
-	
+
 	#setup journal reader
-	journal = JournalReader()
+	journal = JournalReader(arguments.path)
 	
 	if arguments.matches:
 		journal.add_matches(arguments.matches)
