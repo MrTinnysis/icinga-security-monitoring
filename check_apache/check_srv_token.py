@@ -61,8 +61,8 @@ def main():
         sys.exit(CRITICAL)
 
     # get configured values for server sig and server tokens
-    match_sig = re.fullmatch("^ServerSignature (\w+)", server_sig)
-    match_token = re.fullmatch("^ServerTokens (\w+)", server_tokens)
+    match_sig = re.fullmatch("ServerSignature (\w+)", server_sig)
+    match_token = re.fullmatch("ServerTokens (\w+)", server_tokens)
 
     if not match_sig  or not match_token:
         print("CRITICAL: Could not retrieve configured values")
