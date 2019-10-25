@@ -41,10 +41,19 @@ def main():
         print("CRITICAL: The configured path does not denote a directory!")
         sys.exit(CRITICAL)
 
+    # List of directories whose permissions should be checked,
+    # args.path denoting the server root
+    dirs = ["", "bin", "conf", "logs"].map(lambda x: os.path.join(args.path, x))
+    print(dirs)
+
+    raise RuntimeError
 
     for root, dirs, files in os.walk(args.path):
-        if root != args.path and root not in ["bin", "conf", "logs"]:
-            print(f"Skipping Folder: {root}")
+
+
+        if root != args.path and not root in [""]:
+            if args.verbose:
+                print(f"Skipping directory: {root}")
             continue
 
         stats = os.stat(root)
