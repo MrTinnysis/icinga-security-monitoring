@@ -32,7 +32,7 @@ def check_stats(path, verbose=False):
 
     # Print path and stats if verbose output is enabled
     if verbose:
-        print(f"Processing Dir/File: {path}... ", end="")
+        print(f"Processing: {path}... ", end="")
 
     returnCode = OK
 
@@ -56,7 +56,9 @@ def check_stats(path, verbose=False):
         print(f"CRITICAL: {path} 'Everybody has write permissions'")
         returnCode = CRITICAL
 
-    print("Ok.")
+    if verbose and returnCode == OK:
+        print("Ok.")
+        
     return returnCode
 
 
