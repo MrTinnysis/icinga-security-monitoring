@@ -51,7 +51,7 @@ def main():
             server_tokens = find_server_tokens(httpd_conf)
     except FileNotFoundError:
         print("CRITICAL: Config File Not Found")
-        returnCode = CRITICAL
+        sys.exit(CRITICAL)
 
     # check if either ServerSignature or ServerTokens config is missing
     if server_sig is None or server_tokens is None:
