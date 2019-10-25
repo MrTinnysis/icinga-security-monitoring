@@ -39,6 +39,9 @@ def main():
 
     args = parse_args()
 
+    if args.verbose:
+        print(args)
+
     returnCode = OK
 
     try:
