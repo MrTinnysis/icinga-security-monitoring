@@ -42,8 +42,6 @@ def main():
     if args.verbose:
         print(args)
 
-    returnCode = OK
-
     try:
         with open(args.path, "r") as httpd_conf:
             # search entries in https_conf file
@@ -56,14 +54,14 @@ def main():
     # check if either ServerSignature or ServerTokens config is missing
     if server_sig is None or server_tokens is None:
         print("CRITICAL: Missing Configuration for ServerSignature and/or ServerTokens")
-        returnCode = CRITICAL
+        sys.exit(CRITICAL)
 
     # check if either ServerSignature or ServerTokens is configured wrong
     if server_sig != "ServerSignature Off" or server_tokens != "ServerTokens Prod":
         print("WARNING: Potentially insecure configuration for ServerSignature and/or ServerTokens")
-        returnCode = max(returnCode, WARNING)
+        sys.exit(WARNING)
 
-    sys.exit(returnCode)
+    sys.exit(OK)
 
 
 if __name__=="__main__":
