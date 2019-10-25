@@ -20,8 +20,12 @@ def parse_args():
 
     return argumentParser.parse_args()
 
-def process_stats(path, stats):
-    pass
+def process_stats(path, verbose=False):
+    stats = os.stat(path)
+
+    if verbose:
+        print(f"Processing Dir/File: {path}")
+        print(f"Stats: {stats}")
 
 
 def main():
@@ -44,30 +48,20 @@ def main():
         print("CRITICAL: The configured path does not denote a directory!")
         sys.exit(CRITICAL)
 
-    for root, dirs, files in os.walk(args.path):
-        if root != args.path and not any([dir in root for dir in args.dirs]):
-            if args.verbose:
-                print(f"Skipping directory: {root}")
-            continue
+    # Process ServerRoot
+    process_stats(args.path, args.verbose)
 
+    dirs_to_check = [os.path.join(args.path, dir) for dir in args.dirs]
 
-        stats = os.stat(root)
+    if args.verbose:
+        print(f"dirs_to_check = {dirs_to_check}")
 
-        if args.verbose:
-            print(f"Processing: {root}")
-            print(f"Stats: {stats}")
+    for dir in dirs_to_check:
+        for root, _, files in os.walk(dir):
+            process_stats(root)
 
-        process_stats(root, stats)
-
-        for name in files:
-            path = os.path.join(root, name)
-            stats = os.stat(path)
-
-            if args.verbose:
-                print(f"Processing: {path}")
-                print(f"Status: {stats}")
-            
-            process_stats(path, stats)
+            for name in files:
+                process_stats(os.path.join(root, name))
 
     
     sys.exit(OK)
