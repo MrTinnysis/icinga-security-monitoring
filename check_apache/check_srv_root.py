@@ -43,7 +43,7 @@ def main():
 
     # List of directories whose permissions should be checked,
     # args.path denoting the server root
-    dirs = ["", "bin", "conf", "logs"].map(lambda x: os.path.join(args.path, x))
+    dirs = list(map(lambda x: os.path.join(args.path, x), ["", "bin", "conf", "logs"]))
     print(dirs)
 
     raise RuntimeError
