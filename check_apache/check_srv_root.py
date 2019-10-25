@@ -42,16 +42,15 @@ def main():
         sys.exit(CRITICAL)
 
     # List of directories whose permissions should be checked,
-    # args.path denoting the server root
-    dirs = list(map(lambda x: os.path.join(args.path, x), ["", "bin", "conf", "logs"]))
-    print(dirs)
+    # "" denoting the server root
+    dirs_to_check = list(map(lambda x: os.path.join(args.path, x), ["", "bin", "conf", "logs"]))
 
-    raise RuntimeError
+    if args.verbose:
+        print(f"dirs_to_check = {dirs_to_check}")
+    
 
     for root, dirs, files in os.walk(args.path):
-
-
-        if root != args.path and not root in [""]:
+        if not root in dirs_to_check:
             if args.verbose:
                 print(f"Skipping directory: {root}")
             continue
