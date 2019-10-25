@@ -59,9 +59,11 @@ def main():
     for dir in dirs_to_check:
         print(dir)
         for root, _, files in os.walk(dir):
+            print(root)
             process_stats(root)
 
             for name in files:
+                print(name)
                 process_stats(os.path.join(root, name))
 
     
