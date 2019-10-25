@@ -14,6 +14,9 @@ def parse_args():
     argumentParser.add_argument(
 		'--path', default="/usr/local/apache2",
 		help='path to the ServerRoot')
+    argumentParser.add_argument(
+        "-d", "--dirs", default=["bin", "conf", "logs"],
+        help="List of subdirectories whose permissions should be checked")
 
     return argumentParser.parse_args()
 
@@ -41,19 +44,12 @@ def main():
         print("CRITICAL: The configured path does not denote a directory!")
         sys.exit(CRITICAL)
 
-    # List of directories whose permissions should be checked,
-    # "" denoting the server root
-    dirs_to_check = list(map(lambda x: os.path.join(args.path, x), ["", "bin", "conf", "logs"]))
-
-    if args.verbose:
-        print(f"dirs_to_check = {dirs_to_check}")
-    
-
     for root, dirs, files in os.walk(args.path):
-        if not root in dirs_to_check:
+        if root != args.path and not any([dir in root for dir in args.dirs]):
             if args.verbose:
                 print(f"Skipping directory: {root}")
             continue
+
 
         stats = os.stat(root)
 
