@@ -103,7 +103,9 @@ def main():
             for name in files:
                 returnCode = max(returnCode, check_stats(os.path.join(root, name), args.verbose))
 
-    
+    if returnCode == OK:
+        print("OK: ServerRoot Permission are ok.")
+
     sys.exit(returnCode)
 
 
