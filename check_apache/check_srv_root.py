@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
-import argparse, sys, os
+import argparse, sys, os, stat
+
+
+# monitoring plugin return codes
+OK = 0
+WARNING = 1
+CRITICAL = 2
+UNKNOWN = 3
 
 
 def parse_args():
@@ -14,28 +21,47 @@ def parse_args():
     argumentParser.add_argument(
 		'--path', default="/usr/local/apache2",
 		help='path to the ServerRoot')
-    argumentParser.add_argument(
-        "-d", "--dirs", default=["bin", "conf", "logs"],
-        help="List of subdirectories whose permissions should be checked")
 
     return argumentParser.parse_args()
 
-def process_stats(path, verbose=False):
+def check_stats(path, verbose=False):
+    # Retrieves dir/file stats and checks against guidelines
+
+    # get file stats
     stats = os.stat(path)
 
+    # Print path and stats if verbose output is enabled
     if verbose:
         print(f"Processing Dir/File: {path}")
         print(f"Stats: {stats}")
 
+    returnCode = OK
+
+    # Check if owner or group differs from root (ID=0)
+    if stats.st_uid != 0 or stats.st_gid != 0:
+        print(f"WARNING: {path} Owner or Group differs from root")
+        returnCode = WARNING
+
+    # Check if user differs from root and has write permissions
+    if stats.st_uid != 0 and stats.st_mode & stat.S_IWUSR:
+        print(f"CRITICAL: {path} Owner differs from root and has write permissions")
+        returnCode = CRITICAL
+
+    # Check if group has write permissions
+    if (stats.st_mode & stat.S_IWGRP):
+        print(f"CRITICAL: {path} Group has write permissions")
+        returnCode = CRITICAL
+
+    # Check if "everybody" has write permissions
+    if (stats.st_mode & stat.S_IWOTH):
+        print(f"CRITICAL: {path} 'Everybody has write permissions'")
+        returnCode = CRITICAL
+
+    return returnCode
+
 
 def main():
     # Main Plugin Function
-
-    # monitoring plugin return codes
-    OK = 0
-    WARNING = 1
-    CRITICAL = 2
-    UNKNOWN = 3
 
     # parse CLI Arguments
     args = parse_args()
@@ -44,27 +70,39 @@ def main():
     if args.verbose:
         print(args)
 
+    # Check if configured path denotes a directory
     if not os.path.isdir(args.path):
         print("CRITICAL: The configured path does not denote a directory!")
         sys.exit(CRITICAL)
 
+    # Maybe check if the configured path is indeed the server root (by checking httpd.conf)
+
+    # start with returnCode OK
+    returnCode = OK
+
     # Process ServerRoot
-    process_stats(args.path, args.verbose)
+    returnCode = max(returnCode, check_stats(args.path, args.verbose))
 
-    dirs_to_check = [os.path.join(args.path, dir) for dir in args.dirs]
+    # Build absolute paths to subfolders that are being checked
+    dirs_to_check = [os.path.join(args.path, dir) for dir in ["bin", "conf", "logs"]]
 
+    # Print absolute paths if verbose output is enabled
     if args.verbose:
         print(f"dirs_to_check = {dirs_to_check}")
 
+    # Process every subfolder and update returnCode 
     for dir in dirs_to_check:
+        # recursively process all subfolders and files
         for root, _, files in os.walk(dir):
-            process_stats(root, args.verbose)
+            # check folder itself
+            returnCode = max(returnCode, check_stats(root, args.verbose))
 
+            # check every file in folder
             for name in files:
-                process_stats(os.path.join(root, name), args.verbose)
+                returnCode = max(returnCode, check_stats(os.path.join(root, name), args.verbose))
 
     
-    sys.exit(OK)
+    sys.exit(returnCode)
 
 
 if __name__=="__main__":
