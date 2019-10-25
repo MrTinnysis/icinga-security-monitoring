@@ -52,8 +52,8 @@ def main():
         sys.exit(CRITICAL)
 
     if args.verbose:
-        print(f"server_sig={server_sig}")
-        print(f"server_tokens={server_tokens}")
+        print(f"server_sig = {server_sig}")
+        print(f"server_tokens = {server_tokens}")
 
     # check if either ServerSignature or ServerTokens config is missing
     if server_sig is None or server_tokens is None:
@@ -61,6 +61,8 @@ def main():
         sys.exit(CRITICAL)
 
     # check if either ServerSignature or ServerTokens is configured wrong
+    print(server_sig != "ServerSignature Off")
+    print(server_tokens != "ServerTokens Prod")
     if server_sig != "ServerSignature Off" or server_tokens != "ServerTokens Prod":
         print("WARNING: Potentially insecure configuration for ServerSignature and/or ServerTokens")
         sys.exit(WARNING)
