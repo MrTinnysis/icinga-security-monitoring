@@ -57,14 +57,11 @@ def main():
         print(f"dirs_to_check = {dirs_to_check}")
 
     for dir in dirs_to_check:
-        print(dir)
         for root, _, files in os.walk(dir):
-            print(root)
-            process_stats(root)
+            process_stats(root, args.verbose)
 
             for name in files:
-                print(name)
-                process_stats(os.path.join(root, name))
+                process_stats(os.path.join(root, name), args.verbose)
 
     
     sys.exit(OK)
