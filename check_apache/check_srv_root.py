@@ -53,12 +53,12 @@ def check_stats(path, verbose=False):
 
     # Check if "everybody" has write permissions
     if (stats.st_mode & stat.S_IWOTH):
-        print(f"CRITICAL: {path} 'Everybody has write permissions'")
+        print(f"CRITICAL: {path} 'Everybody' has write permissions")
         returnCode = CRITICAL
 
     if verbose and returnCode == OK:
         print("Ok.")
-        
+
     return returnCode
 
 

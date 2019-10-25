@@ -79,7 +79,7 @@ def main():
 
     # Abort if configured values could not be retrieved
     if not match_sig  or not match_token:
-        print("CRITICAL: Could not retrieve configured values")
+        print("CRITICAL: Failed to read configuration (is it commented out?)")
         sys.exit(CRITICAL)
 
     # Compare the configured values with the suggested values
