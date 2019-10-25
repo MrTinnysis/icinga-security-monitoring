@@ -51,6 +51,10 @@ def main():
         print("CRITICAL: Config File Not Found")
         sys.exit(CRITICAL)
 
+    if args.verbose:
+        print(f"server_sig={server_sig}")
+        print(f"server_tokens={server_tokens}")
+
     # check if either ServerSignature or ServerTokens config is missing
     if server_sig is None or server_tokens is None:
         print("CRITICAL: Missing Configuration for ServerSignature and/or ServerTokens")
