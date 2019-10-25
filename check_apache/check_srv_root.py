@@ -42,8 +42,11 @@ def main():
         sys.exit(CRITICAL)
 
 
-
     for root, dirs, files in os.walk(args.path):
+        if root != args.path and root not in ["bin", "conf", "logs"]:
+            print(f"Skipping Folder: {root}")
+            break
+
         stats = os.stat(root)
 
         if args.verbose:
