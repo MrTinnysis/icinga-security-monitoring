@@ -57,6 +57,7 @@ def main():
         print(f"dirs_to_check = {dirs_to_check}")
 
     for dir in dirs_to_check:
+        print(dir)
         for root, _, files in os.walk(dir):
             process_stats(root)
 
