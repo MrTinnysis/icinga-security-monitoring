@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import argparse, sys
+import argparse, sys, re
 
 
 def find_server_signature(httpd_conf):
@@ -56,14 +56,19 @@ def main():
         print(f"server_tokens = {server_tokens}")
 
     # check if either ServerSignature or ServerTokens config is missing
-    if server_sig is None or server_tokens is None:
+    if not server_sig or not server_tokens:
         print("CRITICAL: Missing Configuration for ServerSignature and/or ServerTokens")
         sys.exit(CRITICAL)
 
-    # check if either ServerSignature or ServerTokens is configured wrong
-    print(server_sig != "ServerSignature Off")
-    print(server_tokens != "ServerTokens Prod")
-    if server_sig != "ServerSignature Off" or server_tokens != "ServerTokens Prod":
+    # get configured values for server sig and server tokens
+    match_sig = re.fullmatch("^ServerSignature (\w+)$", server_sig)
+    match_token = re.fullmatch("^ServerTokens (\w+)$", server_tokens)
+
+    if not match_sig  or not match_token:
+        print("CRITICAL: Could not retrieve configured values")
+        sys.exit(CRITICAL)
+
+    if match_sig.group(1) != "Off" or match_token.group(1) != "Prod":
         print("WARNING: Potentially insecure configuration for ServerSignature and/or ServerTokens")
         sys.exit(WARNING)
 
