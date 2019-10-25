@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 import argparse, sys
 
@@ -26,7 +27,7 @@ def parse_args():
 		'--path', default="/usr/local/apache2/conf/httpd.conf",
 		help='path to the httpd.conf configuration file')
 
-    args = argumentParser.parse_args()
+    return argumentParser.parse_args()
 
 
 def main():
