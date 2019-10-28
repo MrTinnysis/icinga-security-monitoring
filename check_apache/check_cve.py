@@ -51,7 +51,8 @@ def get_server_version(exec_name, verbose):
 
     try:
         # execute shell commands to retrieve server version
-        server_version = subprocess.check_output(cmd, shell=True)
+        server_version = subprocess.check_output(
+            cmd, shell=True).decode("utf-8")
     except subprocess.CalledProcessError:
         print(f"CRITICAL: Failed to execute shell command: {cmd}")
         sys.exit(CRITICAL)
