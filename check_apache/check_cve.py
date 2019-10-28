@@ -33,10 +33,10 @@ def parse_args():
         '-v', '--verbose', nargs="?", const=True, default=False,
         help='verbose output')
     argumentParser.add_argument(
-        "-w", '--warning', type=int, choices=CVE_SEVERITIES.values, default=3,
+        "-w", '--warning', type=int, choices=CVE_SEVERITIES.values(), default=3,
         help='return warning if severity is equal or above')
     argumentParser.add_argument(
-        "-c", '--critical', type=int, choices=CVE_SEVERITIES.values, default=4,
+        "-c", '--critical', type=int, choices=CVE_SEVERITIES.values(), default=4,
         help='return critical if severity is equal or above')
     argumentParser.add_argument(
         "-e", "--exec", default="httpd", choices=["httpd", "apache2"],
