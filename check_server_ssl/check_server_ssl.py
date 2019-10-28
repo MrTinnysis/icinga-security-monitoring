@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import sys
 import argparse
 
@@ -42,7 +41,6 @@ def main():
         help='max age (in hours) of cached check result')
 
     arguments = argumentParser.parse_args()
-    print(arguments)
 
     try:
         assessment = SSLLabsAssessment(host=arguments.host)
@@ -67,10 +65,10 @@ def main():
 
             status += ('ServerName: ' + endpoint['serverName'] +
                        ' IPAddress: ' + endpoint['ipAddress'] +
-                       ' Grade: ' + endpoint['grade'])
+                       ' Grade: ' + endpoint['grade'] + ';')
 
     except Exception as e:
-        status = ('CRITICAL: ' + e)
+        status = ('CRITICAL: ' + str(e))
 
     print(status)
     if criticalCount > 0:
@@ -82,5 +80,5 @@ def main():
     sys.exit(returnCode)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
