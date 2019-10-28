@@ -33,11 +33,11 @@ def parse_args():
         '-v', '--verbose', nargs="?", const=True, default=False,
         help='verbose output')
     argumentParser.add_argument(
-        "-w", '--warning', type=int, choices=CVE_SEVERITIES, default=3,
-        help='return warning if grade is equal or above')
+        "-w", '--warning', type=int, choices=CVE_SEVERITIES.values(), default=3,
+        help='return warning if cve severity is equal or above')
     argumentParser.add_argument(
-        "-c", '--critical', type=int, choices=CVE_SEVERITIES, default=4,
-        help='return critical if grade is equal or above')
+        "-c", '--critical', type=int, choices=CVE_SEVERITIES.values(), default=4,
+        help='return critical if cve severity is equal or above')
     argumentParser.add_argument(
         "-e", "--exec", default="httpd", choices=["httpd", "apache2"],
         help="Specify the executable that should be used to query the server version"
@@ -51,7 +51,8 @@ def get_server_version(exec_name, verbose):
 
     try:
         # execute shell commands to retrieve server version
-        server_version = subprocess.check_output(cmd, shell=True)
+        server_version = subprocess.check_output(
+            cmd, shell=True).decode("utf-8")
     except subprocess.CalledProcessError:
         print(f"CRITICAL: Failed to execute shell command: {cmd}")
         sys.exit(CRITICAL)
@@ -60,12 +61,15 @@ def get_server_version(exec_name, verbose):
         print(server_version)
 
     # retrieve server version number using regex
-    match = re.match("^Server version: Apache/(.+)", server_version)
+    match = re.match("^Server version: Apache/(.+?) ", server_version)
 
     # check if match was successful
     if not match:
         print("CRITICAL: Could not retrieve server version")
         sys.exit(CRITICAL)
+
+    if verbose:
+        print(f"version_nr: {match.group(1)}")
 
     return match.group(1)
 
@@ -80,10 +84,10 @@ def get_cve_list(verbose):
         sys.exit(CRITICAL)
 
     if verbose:
-        print(response)
+        print(f"response_header={response.headers}")
 
     # check if http response was successful
-    if response:
+    if response.status_code != 200:
         print("CRITICAL: Could not retrieve CVE's")
         sys.exit(CRITICAL)
 
@@ -111,7 +115,7 @@ def main():
                      cve.find(f".//affects[@version='{server_version}']") != None]
 
     if args.verbose:
-        print(severity_list)
+        print(f"severity_list={severity_list}")
 
     # get highest severity cve affecting the given server version
     max_severity = max(severity_list, default=CVE_SEVERITIES["n/a"])
@@ -119,17 +123,18 @@ def main():
     if args.verbose:
         print(f"max_severity={max_severity}")
 
-    returnCode = OK
+    # check critical threshold
+    if max_severity >= args.critical:
+        print(f"CRITICAL: severity={max_severity}")
+        sys.exit(CRITICAL)
 
     # check warning threshold
     if max_severity >= args.warning:
-        returnCode = WARNING
+        print(f"WARNING: severity={max_severity}")
+        sys.exit(WARNING)
 
-    # check critical threshold
-    if max_severity >= args.critical:
-        returnCode = CRITICAL
-
-    sys.exit(returnCode)
+    print(f"OK: severity={max_severity}")
+    sys.exit(OK)
 
 
 if __name__ == "__main__":
