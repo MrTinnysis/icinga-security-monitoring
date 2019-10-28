@@ -4,6 +4,12 @@ import argparse
 import sys
 import re
 
+# monitoring plugin return codes
+OK = 0
+WARNING = 1
+CRITICAL = 2
+UNKNOWN = 3
+
 
 def find_server_signature(httpd_conf):
     # Searches a "ServerSignature" Configuration Entry and returns the 
@@ -40,12 +46,6 @@ def parse_args():
 
 def main():
     # Main Plugin Function
-
-    # monitoring plugin return codes
-    OK = 0
-    WARNING = 1
-    CRITICAL = 2
-    UNKNOWN = 3
 
     # parse CLI Arguments
     args = parse_args()

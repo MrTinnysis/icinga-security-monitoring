@@ -6,6 +6,11 @@ import argparse
 # SSLLabs API from https://github.com/takeshixx/python-ssllabs
 from ssllabs import SSLLabsAssessment
 
+# monitoring plugin return codes
+OK = 0
+WARNING = 1
+CRITICAL = 2
+UNKNOWN = 3
 
 def parse_args():
     # Parses the CLI Arguments and returns a dict containing the
@@ -32,11 +37,6 @@ def parse_args():
 
 
 def main():
-    # monitoring plugin return codes
-    OK = 0
-    WARNING = 1
-    CRITICAL = 2
-    UNKNOWN = 3
 
     # defaults
     returnCode = UNKNOWN
@@ -45,6 +45,7 @@ def main():
     criticalCount = 0
     status = ''
 
+    # parse CLI Arguments
     arguments = parse_args()
 
     try:

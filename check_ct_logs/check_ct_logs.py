@@ -5,6 +5,12 @@ import argparse
 import sys
 import re
 
+# monitoring plugin return codes
+OK = 0
+WARNING = 1
+CRITICAL = 2
+UNKNOWN = 3
+
 
 def parse_args():
     # Parses the CLI Arguments and returns a dict containing the
@@ -25,11 +31,6 @@ def parse_args():
 
 
 def main():
-    # monitoring plugin return codes
-    OK = 0
-    WARNING = 1
-    CRITICAL = 2
-    UNKNOWN = 3
 
     # defaults
     returnCode = UNKNOWN
@@ -38,6 +39,7 @@ def main():
     warningCount = 0
     criticalCount = 0
 
+    # parse CLI Arguments
     arguments = parse_args()
 
     try:
