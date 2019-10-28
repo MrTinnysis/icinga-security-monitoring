@@ -84,7 +84,7 @@ def get_cve_list(verbose):
         sys.exit(CRITICAL)
 
     if verbose:
-        print(response.header)
+        print(response.headers)
 
     # check if http response was successful
     if response.status_code != 200:
