@@ -26,7 +26,7 @@ def parse_args():
         "-g", "--group", default="root",
         help="group to which the server files should belong")
     argumentParser.add_argument(
-        "-r", '--srvroot', nargs="?", const="/usr/local/apache2", default=None,
+        "-r", '--srv-root', nargs="?", const="/usr/local/apache2", default=None,
         help='path to the apache ServerRoot\nDefaults to (Docker): /usr/local/apache2')
     argumentParser.add_argument(
         "-l", '--log', default="/var/log/apache2",
@@ -105,8 +105,6 @@ def main():
     if args.verbose:
         print(args)
 
-    # Maybe check if the configured path is indeed the server root (by checking httpd.conf)
-
     # start with returnCode OK
     returnCode = OK
 
@@ -115,6 +113,11 @@ def main():
         dirs_to_check = [args.bin, args.conf, args.log, args.modules]
 
     else:
+        # Check if configured path denotes a directory
+        if not os.path.isdir(args.srvroot):
+            print("CRITICAL: The configured path does not denote a directory!")
+            sys.exit(CRITICAL)
+
         # Process ServerRoot
         returnCode = max(returnCode, check_stats(
             args.srvroot, args.group, args.verbose))
@@ -127,7 +130,7 @@ def main():
         print(f"dirs_to_check={dirs_to_check}")
 
     for dir in dirs_to_check:
-        for root, _, files in os.walk(dir, onerror=on_error):
+        for root, _, files in os.walk(dir, onerror=on_error, followlinks=True):
             returnCode = max(returnCode, check_stats(
                 root, args.group, args.verbose))
 
