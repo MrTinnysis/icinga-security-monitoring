@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-import argparse, sys, re
+import argparse
+import sys
+import re
 
 
 def find_server_signature(httpd_conf):
@@ -27,11 +29,11 @@ def parse_args():
     argumentParser = argparse.ArgumentParser()
 
     argumentParser.add_argument(
-		'-v', '--verbose', nargs="?", const=True, default=False,
-		help='verbose output')
+        '-v', '--verbose', nargs="?", const=True, default=False,
+        help='verbose output')
     argumentParser.add_argument(
-		'--path', default="/usr/local/apache2/conf/httpd.conf",
-		help='path to the httpd.conf configuration file')
+        '--path', default="/usr/local/apache2/conf/httpd.conf",
+        help='path to the httpd.conf configuration file')
 
     return argumentParser.parse_args()
 
@@ -78,7 +80,7 @@ def main():
     match_token = re.match("^ServerTokens (\w+)", server_tokens)
 
     # Abort if configured values could not be retrieved
-    if not match_sig  or not match_token:
+    if not match_sig or not match_token:
         print("CRITICAL: Failed to read configuration (is it commented out?)")
         sys.exit(CRITICAL)
 
@@ -93,5 +95,5 @@ def main():
     sys.exit(OK)
 
 
-if __name__=="__main__":
-	main()
+if __name__ == "__main__":
+    main()

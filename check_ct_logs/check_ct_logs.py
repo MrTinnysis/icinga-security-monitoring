@@ -6,6 +6,24 @@ import sys
 import re
 
 
+def parse_args():
+    # Parses the CLI Arguments and returns a dict containing the
+    # corresponding values
+    argumentParser = argparse.ArgumentParser()
+
+    argumentParser.add_argument(
+        '--verbose', nargs='?', const=True, default=False,
+        help='verbose output')
+    argumentParser.add_argument(
+        '--domain', metavar='DOMAIN', type=str, required=True,
+        help='domain to search in certificate transparency logs')
+    argumentParser.add_argument(
+        '--issuer', metavar='ISSUER ORGANISATION NAME', nargs='+', type=str, required=True,
+        help='whitelist issuers')
+
+    return argumentParser.parse_args()
+
+
 def main():
     # monitoring plugin return codes
     OK = 0
@@ -20,20 +38,7 @@ def main():
     warningCount = 0
     criticalCount = 0
 
-    # parse arguments
-    argumentParser = argparse.ArgumentParser()
-
-    argumentParser.add_argument(
-        '--verbose', nargs='?', const=True, default=False,
-        help='verbose output')
-    argumentParser.add_argument(
-        '--domain', metavar='DOMAIN', type=str, required=True,
-        help='domain to search in certificate transparency logs')
-    argumentParser.add_argument(
-        '--issuer', metavar='ISSUER ORGANISATION NAME', nargs='+', type=str, required=True,
-        help='whitelist issuers')
-
-    arguments = argumentParser.parse_args()
+    arguments = parse_args()
 
     try:
 
