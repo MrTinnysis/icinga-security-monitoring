@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
-import argparse, sys, os, stat
+import argparse
+import sys
+import os
+import stat
+import grp
 
 
 # monitoring plugin return codes
@@ -11,21 +15,40 @@ UNKNOWN = 3
 
 
 def parse_args():
-    # Parses the CLI Arguments and returns a dict containing the 
+    # Parses the CLI Arguments and returns a dict containing the
     # corresponding values
     argumentParser = argparse.ArgumentParser()
 
     argumentParser.add_argument(
-		'-v', '--verbose', nargs="?", const=True, default=False,
-		help='verbose output')
+        '-v', '--verbose', nargs="?", const=True, default=False,
+        help='verbose output')
     argumentParser.add_argument(
-		'--path', default="/usr/local/apache2",
-		help='path to the ServerRoot')
+        "-g", "--group", default="root",
+        help="group to which the server files should belong")
+    argumentParser.add_argument(
+        "-r", '--srv-root', nargs="?", const="/usr/local/apache2", default=None,
+        help='path to the apache ServerRoot\nDefaults to (Docker): /usr/local/apache2')
+    argumentParser.add_argument(
+        "-l", '--log', default="/var/log/apache2",
+        help='path to the apache log folder\nDefaults to (Ubuntu): /var/log/apache2')
+    argumentParser.add_argument(
+        "-b", '--bin', default="/usr/sbin/apache2",
+        help='path to the apache binary\nDefaults to (Ubuntu): /usr/sbin/apache2')
+    argumentParser.add_argument(
+        "-c", '--conf', default="/etc/apache2",
+        help='path to the apache conf folder\nDefaults to (Ubuntu): /etc/apache2')
+    argumentParser.add_argument(
+        "-m", '--modules', default="/usr/lib/apache2",
+        help='path to the apache modules folder\nDefaults to (Ubuntu): /usr/lib/apache2')
 
     return argumentParser.parse_args()
 
-def check_stats(path, verbose=False):
+
+def check_stats(path, group, verbose=False):
     # Retrieves dir/file stats and checks against guidelines
+
+    # convert groupname to group id
+    groupid = grp.getgrnam(group).gr_gid
 
     # get file stats
     stats = os.stat(path)
@@ -37,13 +60,18 @@ def check_stats(path, verbose=False):
     returnCode = OK
 
     # Check if owner or group differs from root (ID=0)
-    if stats.st_uid != 0 or stats.st_gid != 0:
-        print(f"WARNING: {path} Owner or Group differs from root")
+    if stats.st_uid != 0:
+        print(f"WARNING: {path} Owner differs from root")
+        returnCode = WARNING
+
+    if (stats.st_gid != groupid):
+        print(f"WARNING: {path} Group differs from {group}")
         returnCode = WARNING
 
     # Check if user differs from root and has write permissions
     if stats.st_uid != 0 and stats.st_mode & stat.S_IWUSR:
-        print(f"CRITICAL: {path} Owner differs from root and has write permissions")
+        print(
+            f"CRITICAL: {path} Owner differs from root and has write permissions")
         returnCode = CRITICAL
 
     # Check if group has write permissions
@@ -60,6 +88,11 @@ def check_stats(path, verbose=False):
         print("Ok.")
 
     return returnCode
+
+
+def on_error(exception):
+    print(f"CRITICAL: {exception.filename} doesn't exist")
+    sys.exit(CRITICAL)
 
 
 def main():
@@ -82,26 +115,30 @@ def main():
     # start with returnCode OK
     returnCode = OK
 
-    # Process ServerRoot
-    returnCode = max(returnCode, check_stats(args.path, args.verbose))
+    if not args.root:
+        # Collect paths to relevant directories
+        dirs_to_check = [args.bin, args.conf, args.log, args.modules]
 
-    # Build absolute paths to subfolders that are being checked
-    dirs_to_check = [os.path.join(args.path, dir) for dir in ["bin", "conf", "logs"]]
+    else:
+        # Process ServerRoot
+        returnCode = max(returnCode, check_stats(
+            args.root, args.group, args.verbose))
 
-    # Print absolute paths if verbose output is enabled
+        # Build absolute paths to subfolders that are being checked
+        dirs_to_check = [os.path.join(args.root, dir)
+                         for dir in ["bin", "conf", "logs", "modules"]]
+
     if args.verbose:
-        print(f"dirs_to_check = {dirs_to_check}")
+        print(f"dirs_to_check={dirs_to_check}")
 
-    # Process every subfolder and update returnCode 
     for dir in dirs_to_check:
-        # recursively process all subfolders and files
-        for root, _, files in os.walk(dir):
-            # check folder itself
-            returnCode = max(returnCode, check_stats(root, args.verbose))
+        for root, _, files in os.walk(dir, onerror=on_error):
+            returnCode = max(returnCode, check_stats(
+                root, args.group, args.verbose))
 
-            # check every file in folder
             for name in files:
-                returnCode = max(returnCode, check_stats(os.path.join(root, name), args.verbose))
+                returnCode = max(returnCode, check_stats(
+                    os.path.join(root, name), args.group, args.verbose))
 
     if returnCode == OK:
         print("OK: ServerRoot Permission are ok.")
@@ -109,5 +146,5 @@ def main():
     sys.exit(returnCode)
 
 
-if __name__=="__main__":
-	main()
+if __name__ == "__main__":
+    main()
