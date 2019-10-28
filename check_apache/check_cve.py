@@ -33,11 +33,11 @@ def parse_args():
         '-v', '--verbose', nargs="?", const=True, default=False,
         help='verbose output')
     argumentParser.add_argument(
-        "-w", '--warning', type=int, choices=CVE_SEVERITIES, default=3,
-        help='return warning if grade is equal or above')
+        "-w", '--warning', type=int, choices=CVE_SEVERITIES.values, default=3,
+        help='return warning if severity is equal or above')
     argumentParser.add_argument(
-        "-c", '--critical', type=int, choices=CVE_SEVERITIES, default=4,
-        help='return critical if grade is equal or above')
+        "-c", '--critical', type=int, choices=CVE_SEVERITIES.values, default=4,
+        help='return critical if severity is equal or above')
     argumentParser.add_argument(
         "-e", "--exec", default="httpd", choices=["httpd", "apache2"],
         help="Specify the executable that should be used to query the server version"
@@ -84,7 +84,7 @@ def get_cve_list(verbose):
         sys.exit(CRITICAL)
 
     if verbose:
-        print(response.headers)
+        print(f"response_header={response.headers}")
 
     # check if http response was successful
     if response.status_code != 200:
