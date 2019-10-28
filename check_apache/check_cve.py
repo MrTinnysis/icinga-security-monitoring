@@ -61,7 +61,7 @@ def get_server_version(exec_name, verbose):
         print(server_version)
 
     # retrieve server version number using regex
-    match = re.match("^Server version: Apache/(.+)", server_version)
+    match = re.match("^Server version: Apache/(.+?) ", server_version)
 
     # check if match was successful
     if not match:
@@ -87,7 +87,7 @@ def get_cve_list(verbose):
         print(response)
 
     # check if http response was successful
-    if response:
+    if response.status_code != 200:
         print("CRITICAL: Could not retrieve CVE's")
         sys.exit(CRITICAL)
 
