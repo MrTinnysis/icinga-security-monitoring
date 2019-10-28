@@ -29,17 +29,22 @@ def parse_args():
         "-r", '--srv-root', nargs="?", const="/usr/local/apache2", default=None,
         help='path to the apache ServerRoot\nDefaults to (Docker): /usr/local/apache2')
     argumentParser.add_argument(
-        "-l", '--log', default="/var/log/apache2",
-        help='path to the apache log folder\nDefaults to (Ubuntu): /var/log/apache2')
-    argumentParser.add_argument(
-        "-b", '--bin', default="/usr/sbin/apache2",
-        help='path to the apache binary\nDefaults to (Ubuntu): /usr/sbin/apache2')
-    argumentParser.add_argument(
-        "-c", '--conf', default="/etc/apache2",
-        help='path to the apache conf folder\nDefaults to (Ubuntu): /etc/apache2')
-    argumentParser.add_argument(
-        "-m", '--modules', default="/usr/lib/apache2",
-        help='path to the apache modules folder\nDefaults to (Ubuntu): /usr/lib/apache2')
+        "-s", "--skip", nargs="+", default=["htdocs"],
+        help="specify which subfolders in the ServerRoot should be skipped (only effective with option '-r')"
+    )
+
+    # argumentParser.add_argument(
+    #     "-l", '--log', default="/var/log/apache2",
+    #     help='path to the apache log folder\nDefaults to (Ubuntu): /var/log/apache2')
+    # argumentParser.add_argument(
+    #     "-b", '--bin', default="/usr/sbin/apache2",
+    #     help='path to the apache binary\nDefaults to (Ubuntu): /usr/sbin/apache2')
+    # argumentParser.add_argument(
+    #     "-c", '--conf', default="/etc/apache2",
+    #     help='path to the apache conf folder\nDefaults to (Ubuntu): /etc/apache2')
+    # argumentParser.add_argument(
+    #     "-m", '--modules', default="/usr/lib/apache2",
+    #     help='path to the apache modules folder\nDefaults to (Ubuntu): /usr/lib/apache2')
 
     return argumentParser.parse_args()
 
@@ -108,35 +113,60 @@ def main():
     # start with returnCode OK
     returnCode = OK
 
-    if not args.srv_root:
-        # Collect paths to relevant directories
-        dirs_to_check = [args.bin, args.conf, args.log, args.modules]
-
-    else:
+    # check if server root is specified
+    if args.srv_root:
         # Check if configured path denotes a directory
         if not os.path.isdir(args.srv_root):
             print("CRITICAL: The configured path does not denote a directory!")
             sys.exit(CRITICAL)
 
-        # Process ServerRoot
-        returnCode = max(returnCode, check_stats(
-            args.srv_root, args.group, args.verbose))
-
-        # Build absolute paths to subfolders that are being checked
-        dirs_to_check = [os.path.join(args.srv_root, dir)
-                         for dir in ["bin", "conf", "logs", "modules"]]
-
-    if args.verbose:
-        print(f"dirs_to_check={dirs_to_check}")
-
-    for dir in dirs_to_check:
-        for root, _, files in os.walk(dir, onerror=on_error, followlinks=True):
+        for root, dirs, files in os.walk(args.srv_root, followlinks=True):
+            # Process the current directory
             returnCode = max(returnCode, check_stats(
                 root, args.group, args.verbose))
 
+            # skip blacklisted directories
+            for i, name in enumerate(dirs):
+                if name in args.skip:
+                    del dirs[i]
+
+            # Process all files in the current directory
             for name in files:
                 returnCode = max(returnCode, check_stats(
                     os.path.join(root, name), args.group, args.verbose))
+
+    else:
+        pass
+
+    # if not args.srv_root:
+    #     # Collect paths to relevant directories
+    #     dirs_to_check = [args.bin, args.conf, args.log, args.modules]
+
+    # else:
+    #     # Check if configured path denotes a directory
+    #     if not os.path.isdir(args.srv_root):
+    #         print("CRITICAL: The configured path does not denote a directory!")
+    #         sys.exit(CRITICAL)
+
+    #     # Process ServerRoot
+    #     returnCode = max(returnCode, check_stats(
+    #         args.srv_root, args.group, args.verbose))
+
+    #     # Build absolute paths to subfolders that are being checked
+    #     dirs_to_check = [os.path.join(args.srv_root, dir)
+    #                      for dir in ["bin", "conf", "logs", "modules"]]
+
+    # if args.verbose:
+    #     print(f"dirs_to_check={dirs_to_check}")
+
+    # for dir in dirs_to_check:
+    #     for root, _, files in os.walk(dir, onerror=on_error, followlinks=True):
+    #         returnCode = max(returnCode, check_stats(
+    #             root, args.group, args.verbose))
+
+    #         for name in files:
+    #             returnCode = max(returnCode, check_stats(
+    #                 os.path.join(root, name), args.group, args.verbose))
 
     if returnCode == OK:
         print("OK: ServerRoot Permission are ok.")
