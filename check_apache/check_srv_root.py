@@ -105,11 +105,6 @@ def main():
     if args.verbose:
         print(args)
 
-    # Check if configured path denotes a directory
-    if not os.path.isdir(args.path):
-        print("CRITICAL: The configured path does not denote a directory!")
-        sys.exit(CRITICAL)
-
     # Maybe check if the configured path is indeed the server root (by checking httpd.conf)
 
     # start with returnCode OK
