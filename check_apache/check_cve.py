@@ -68,6 +68,9 @@ def get_server_version(exec_name, verbose):
         print("CRITICAL: Could not retrieve server version")
         sys.exit(CRITICAL)
 
+    if verbose:
+        print(f"version_nr: {match.group(1)}")
+
     return match.group(1)
 
 
