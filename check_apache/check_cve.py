@@ -46,14 +46,16 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-def get_server_version(exec_name):
-    # execute shell command to retrieve server version
-    cmd = exec_name + " -v | grep 'Server version:'"
-    server_info = subprocess.check_output(cmd).decode("utf-8")
-    #server_info = os.system(cmd).read()
+def get_server_version(exec_name, verbose):
+    # execute shell commands to retrieve server version
+    server_version = subprocess.check_output(
+        exec_name + " -v | grep 'Server version:'", shell=True)
+
+    if verbose:
+        print(server_version)
 
     # retrieve server version number using regex
-    match = re.match("^Server version: Apache/(.+)", server_info)
+    match = re.match("^Server version: Apache/(.+)", server_version)
 
     # check if match was successful
     if not match:
@@ -63,7 +65,7 @@ def get_server_version(exec_name):
     return match.group(1)
 
 
-def get_cve_list():
+def get_cve_list(verbose):
     try:
         # retrieve CVE's in xml form
         response = requests.get(
@@ -71,6 +73,9 @@ def get_cve_list():
     except TimeoutError:
         print("CRITICAL: Could not retrieve CVE's (request timed out)")
         sys.exit(CRITICAL)
+
+    if verbose:
+        print(response)
 
     # check if http response was successful
     if response:
@@ -92,25 +97,31 @@ def main():
         print(args)
 
     # get server version and cve's (in xml format)
-    server_version = get_server_version(args.exec)
-    cve_list = get_cve_list()
+    server_version = get_server_version(args.exec, args.verbose)
+    cve_list = get_cve_list(args.verbose)
 
     # filter cve's by affected server version and map them onto their
     # severity number as defined in CVE_SEVERITIES
     severity_list = [CVE_SEVERITIES[cve.find(".//severity").text] for cve in cve_list if
                      cve.find(f".//affects[@version='{server_version}']") != None]
 
+    if args.verbose:
+        print(severity_list)
+
     # get highest severity cve affecting the given server version
-    highest_severity = max(severity_list, default=CVE_SEVERITIES["n/a"])
+    max_severity = max(severity_list, default=CVE_SEVERITIES["n/a"])
+
+    if args.verbose:
+        print(f"max_severity={max_severity}")
 
     returnCode = OK
 
     # check warning threshold
-    if highest_severity >= args.warning:
+    if max_severity >= args.warning:
         returnCode = WARNING
 
     # check critical threshold
-    if highest_severity >= args.critical:
+    if max_severity >= args.critical:
         returnCode = CRITICAL
 
     sys.exit(returnCode)
