@@ -7,21 +7,9 @@ import argparse
 from ssllabs import SSLLabsAssessment
 
 
-def main():
-    # monitoring plugin return codes
-    OK = 0
-    WARNING = 1
-    CRITICAL = 2
-    UNKNOWN = 3
-
-    # defaults
-    returnCode = UNKNOWN
-    grading = {'A++': 0, 'A+': 1, 'A': 2, 'B': 3, 'C': 4, 'D': 5, 'E': 6, 'F': 7, 'T': 9}
-    warningCount = 0
-    criticalCount = 0
-    status = ''
-
-    # parse arguments
+def parse_args():
+    # Parses the CLI Arguments and returns a dict containing the
+    # corresponding values
     argumentParser = argparse.ArgumentParser()
 
     argumentParser.add_argument(
@@ -40,7 +28,24 @@ def main():
         '--max-age', metavar='NUMBER', type=int, default=5,
         help='max age (in hours) of cached check result')
 
-    arguments = argumentParser.parse_args()
+    return argumentParser.parse_args()
+
+
+def main():
+    # monitoring plugin return codes
+    OK = 0
+    WARNING = 1
+    CRITICAL = 2
+    UNKNOWN = 3
+
+    # defaults
+    returnCode = UNKNOWN
+    grading = {'A++': 0, 'A+': 1, 'A': 2, 'B': 3, 'C': 4, 'D': 5, 'E': 6, 'F': 7, 'T': 9}
+    warningCount = 0
+    criticalCount = 0
+    status = ''
+
+    arguments = parse_args()
 
     try:
         assessment = SSLLabsAssessment(host=arguments.host)
