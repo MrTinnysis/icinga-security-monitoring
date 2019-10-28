@@ -49,7 +49,7 @@ def parse_args():
 def get_server_version(exec_name, verbose):
     # execute shell commands to retrieve server version
     server_version = subprocess.check_output(
-        exec_name + " -v | grep 'Server version:'", shell=True)
+        exec_name + " -v | grep \"Server version:\"", shell=True)
 
     if verbose:
         print(server_version)
