@@ -84,7 +84,7 @@ def get_cve_list(verbose):
         sys.exit(CRITICAL)
 
     if verbose:
-        print(response)
+        print(response.content)
 
     # check if http response was successful
     if response.status_code != 200:
@@ -123,17 +123,18 @@ def main():
     if args.verbose:
         print(f"max_severity={max_severity}")
 
-    returnCode = OK
+    # check critical threshold
+    if max_severity >= args.critical:
+        print(f"CRITICAL: severity={max_severity}")
+        sys.exit(CRITICAL)
 
     # check warning threshold
     if max_severity >= args.warning:
-        returnCode = WARNING
+        print(f"WARNING: severity={max_severity}")
+        sys.exit(WARNING)
 
-    # check critical threshold
-    if max_severity >= args.critical:
-        returnCode = CRITICAL
-
-    sys.exit(returnCode)
+    print(f"OK: severity={max_severity}")
+    sys.exit(OK)
 
 
 if __name__ == "__main__":
