@@ -63,7 +63,7 @@ def check_stats(path, groups, verbose=False):
         print(f"WARNING: {path} Owner differs from root")
         returnCode = WARNING
 
-    #if (stats.st_gid != groupid):
+    # if (stats.st_gid != groupid):
     if not stats.st_gid in groupids:
         print(f"WARNING: {path} Group differs from {groups}")
         returnCode = WARNING
@@ -88,11 +88,6 @@ def check_stats(path, groups, verbose=False):
         print("Ok.")
 
     return returnCode
-
-
-def on_error(exception):
-    print(f"CRITICAL: {exception.filename} doesn't exist")
-    sys.exit(CRITICAL)
 
 
 def main():
@@ -137,21 +132,23 @@ def main():
 
             # Check if the given path denotes a files -> directly process it
             if os.path.isfile(path):
-                returnCode = max(returnCode, check_stats(path, args.group, args.verbose))
+                returnCode = max(returnCode, check_stats(
+                    path, args.group, args.verbose))
 
             # recursively process folder
             elif os.path.isdir(path):
-                for root, _, files in os.walk(path, onerror=on_error):
+                for root, _, files in os.walk(path):
                     # Process the current folder
-                    returnCode = max(returnCode, check_stats(root, args.group, args.verbose))
+                    returnCode = max(returnCode, check_stats(
+                        root, args.group, args.verbose))
 
                     # Process each file in the current directory
                     for name in files:
-                        returnCode = max(returnCode, check_stats(os.path.join(root, name), args.group, args.verbose))
+                        returnCode = max(returnCode, check_stats(
+                            os.path.join(root, name), args.group, args.verbose))
             else:
-                print(f"CRITICAL: {path} denotes neither a file nor a directory!")
+                print(f"CRITICAL: {path} is neither a file nor a directory!")
                 sys.exit(CRITICAL)
-
 
     if returnCode == OK:
         print("OK: ServerRoot Permission are ok.")
