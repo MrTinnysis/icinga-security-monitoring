@@ -110,17 +110,17 @@ def main():
     # start with returnCode OK
     returnCode = OK
 
-    if not args.root:
+    if not args["srv-root"]:
         # Collect paths to relevant directories
         dirs_to_check = [args.bin, args.conf, args.log, args.modules]
 
     else:
         # Process ServerRoot
         returnCode = max(returnCode, check_stats(
-            args.root, args.group, args.verbose))
+            args["srv-root"], args.group, args.verbose))
 
         # Build absolute paths to subfolders that are being checked
-        dirs_to_check = [os.path.join(args.root, dir)
+        dirs_to_check = [os.path.join(args["srv-root"], dir)
                          for dir in ["bin", "conf", "logs", "modules"]]
 
     if args.verbose:
