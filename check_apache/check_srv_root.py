@@ -108,22 +108,22 @@ def main():
     # start with returnCode OK
     returnCode = OK
 
-    if not args.srvroot:
+    if not args.srv_root:
         # Collect paths to relevant directories
         dirs_to_check = [args.bin, args.conf, args.log, args.modules]
 
     else:
         # Check if configured path denotes a directory
-        if not os.path.isdir(args.srvroot):
+        if not os.path.isdir(args.srv_root):
             print("CRITICAL: The configured path does not denote a directory!")
             sys.exit(CRITICAL)
 
         # Process ServerRoot
         returnCode = max(returnCode, check_stats(
-            args.srvroot, args.group, args.verbose))
+            args.srv_root, args.group, args.verbose))
 
         # Build absolute paths to subfolders that are being checked
-        dirs_to_check = [os.path.join(args.srvroot, dir)
+        dirs_to_check = [os.path.join(args.srv_root, dir)
                          for dir in ["bin", "conf", "logs", "modules"]]
 
     if args.verbose:
