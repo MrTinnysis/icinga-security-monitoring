@@ -34,10 +34,10 @@ def parse_args():
         help='verbose output')
     argumentParser.add_argument(
         "-w", '--warning', type=int, choices=CVE_SEVERITIES.values(), default=3,
-        help='return warning if severity is equal or above')
+        help='return warning if cve severity is equal or above')
     argumentParser.add_argument(
         "-c", '--critical', type=int, choices=CVE_SEVERITIES.values(), default=4,
-        help='return critical if severity is equal or above')
+        help='return critical if cve severity is equal or above')
     argumentParser.add_argument(
         "-e", "--exec", default="httpd", choices=["httpd", "apache2"],
         help="Specify the executable that should be used to query the server version"
@@ -115,7 +115,7 @@ def main():
                      cve.find(f".//affects[@version='{server_version}']") != None]
 
     if args.verbose:
-        print(severity_list)
+        print(f"severity_list={severity_list}")
 
     # get highest severity cve affecting the given server version
     max_severity = max(severity_list, default=CVE_SEVERITIES["n/a"])
