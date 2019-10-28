@@ -21,30 +21,26 @@ def parse_args():
 
     argumentParser.add_argument(
         '-v', '--verbose', nargs="?", const=True, default=False,
-        help='verbose output')
+        help='Verbose output')
     argumentParser.add_argument(
         "-g", "--group", default="root",
-        help="group to which the server files should belong")
+        help="Group to which the server files should belong")
     argumentParser.add_argument(
         "-r", '--srv-root', nargs="?", const="/usr/local/apache2", default=None,
-        help='path to the apache ServerRoot\nDefaults to (Docker): /usr/local/apache2')
+        help='Path to the apache ServerRoot, Defaults to (Docker): /usr/local/apache2')
     argumentParser.add_argument(
         "-s", "--skip", nargs="+", default=["htdocs"],
-        help="specify which subfolders in the ServerRoot should be skipped (only effective with option '-r')"
+        help="Specify which subfolders in the ServerRoot should be skipped (only effective with option '-r')")
+    argumentParser.add_argument(
+        "-p", "--paths", nargs="+", default=["/var/log/apache2", "/usr/sbin/apache2",
+                                             "/etc/apache2", "/usr/lib/apache2"],
+        help="""
+                Specify which files/folders should be checked. Usually this will be at least the 
+                following folders: logs, binaries, libs/modules and config. Defaults to the 
+                Ubuntu/Debian locations, which are as follows: logs=/var/log/apache2, binaries=/usr/sbin/apache2, 
+                libs/modules=/usr/lib/apache2, config=/etc/apache2.
+             """
     )
-
-    # argumentParser.add_argument(
-    #     "-l", '--log', default="/var/log/apache2",
-    #     help='path to the apache log folder\nDefaults to (Ubuntu): /var/log/apache2')
-    # argumentParser.add_argument(
-    #     "-b", '--bin', default="/usr/sbin/apache2",
-    #     help='path to the apache binary\nDefaults to (Ubuntu): /usr/sbin/apache2')
-    # argumentParser.add_argument(
-    #     "-c", '--conf', default="/etc/apache2",
-    #     help='path to the apache conf folder\nDefaults to (Ubuntu): /etc/apache2')
-    # argumentParser.add_argument(
-    #     "-m", '--modules', default="/usr/lib/apache2",
-    #     help='path to the apache modules folder\nDefaults to (Ubuntu): /usr/lib/apache2')
 
     return argumentParser.parse_args()
 
@@ -120,6 +116,7 @@ def main():
             print("CRITICAL: The configured path does not denote a directory!")
             sys.exit(CRITICAL)
 
+        # Process ServerRoot and all subdirs
         for root, dirs, files in os.walk(args.srv_root, followlinks=True):
             # Process the current directory
             returnCode = max(returnCode, check_stats(
@@ -136,7 +133,8 @@ def main():
                     os.path.join(root, name), args.group, args.verbose))
 
     else:
-        pass
+        # Collect all files/dirs that should be checked
+        dirs_to_check = [args.bin, args.conf, args.log, args.modules]
 
     # if not args.srv_root:
     #     # Collect paths to relevant directories
