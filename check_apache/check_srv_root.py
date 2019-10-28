@@ -26,7 +26,7 @@ def parse_args():
         "-g", "--group", default="root",
         help="group to which the server files should belong")
     argumentParser.add_argument(
-        "-r", '--srv-root', nargs="?", const="/usr/local/apache2", default=None,
+        "-r", '--srvroot', nargs="?", const="/usr/local/apache2", default=None,
         help='path to the apache ServerRoot\nDefaults to (Docker): /usr/local/apache2')
     argumentParser.add_argument(
         "-l", '--log', default="/var/log/apache2",
@@ -110,17 +110,17 @@ def main():
     # start with returnCode OK
     returnCode = OK
 
-    if not args["srv-root"]:
+    if not args.srvroot:
         # Collect paths to relevant directories
         dirs_to_check = [args.bin, args.conf, args.log, args.modules]
 
     else:
         # Process ServerRoot
         returnCode = max(returnCode, check_stats(
-            args["srv-root"], args.group, args.verbose))
+            args.srvroot, args.group, args.verbose))
 
         # Build absolute paths to subfolders that are being checked
-        dirs_to_check = [os.path.join(args["srv-root"], dir)
+        dirs_to_check = [os.path.join(args.srvroot, dir)
                          for dir in ["bin", "conf", "logs", "modules"]]
 
     if args.verbose:
