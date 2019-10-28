@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-import os
+import subprocess
 import re
 import requests
 from xml.etree import ElementTree
@@ -49,7 +49,8 @@ def parse_args():
 def get_server_version(exec_name):
     # execute shell command to retrieve server version
     cmd = exec_name + " -v | grep 'Server version:'"
-    server_info = os.system(cmd).read()
+    server_info = subprocess.check_output(cmd).decode("utf-8")
+    #server_info = os.system(cmd).read()
 
     # retrieve server version number using regex
     match = re.match("^Server version: Apache/(.+)", server_info)
