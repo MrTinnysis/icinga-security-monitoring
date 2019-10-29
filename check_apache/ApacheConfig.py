@@ -1,4 +1,5 @@
 
+import os
 import re
 
 # https://pypi.org/project/apacheconfig/
@@ -15,7 +16,7 @@ def get_apache_config(path, options=None, env_vars=None, verbose=False):
         "useapacheinclude": True,
         "includerelative": True,
         "includedirectories": True,
-        "configpath": [path]
+        "configpath": [os.path.split(path)[0]]
     }
 
     # print options if verbose output is enabled
