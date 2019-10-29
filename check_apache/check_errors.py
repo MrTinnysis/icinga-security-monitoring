@@ -36,7 +36,7 @@ def parse_args():
         help="specify the environment variables file to load (used to parse the config file)"
     )
     argumentParser.add_argument(
-        "-v", "--vhost", default=None,
+        "-vh", "--vhost", default=None,
         help="specify the virtual host whose config should be loaded (if any)"
     )
 
