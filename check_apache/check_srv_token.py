@@ -54,6 +54,8 @@ def main():
     if args.verbose:
         print(args)
 
+    # TODO: Switch to ApacheConfig
+
     try:
         # open the configuration file
         with open(args.path, "r") as httpd_conf:
