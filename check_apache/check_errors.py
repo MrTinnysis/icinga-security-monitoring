@@ -62,37 +62,39 @@ def main():
     if args.verbose:
         print(f"config={config}")
 
-    # config = get_apache_config(
-    #     args.config, env_vars=args.env, verbose=args.verbose)
+    # check if there's a virtual host configured
+    if args.vhost:
+        # returns either a dict (1 vhost), a list of dicts (multiple vhosts) or None (no vhost)
+        vhosts = config.get("VirtualHost")
 
-    # if args.vhost != None:
-    #     vhosts = config.get("VirtualHost")
+        if not vhosts:
+            vhost_cfg = None
+        elif type(vhosts) == list:
+            vhost_cfg = next(
+                (vh[args.vhost] for vh in vhosts if args.vhost in vh), None)
+        else:
+            vhost_cfg = vhosts.get(args.vhost)
 
-    #     if type(vhosts) == list:
-    #         vhost_cfg = next(
-    #             (vh[args.vhost] for vh in vhosts if vh.get(args.vhost) != None), None)
-    #     else:
-    #         vhost_cfg = vhosts.get(args.vhost)
+        if not vhost_cfg:
+            print(
+                f"CRITICAL: could not find VirtualHost configuration {args.vhost}")
+            sys.exit(CRITICAL)
 
-    #     if not vhost_cfg:
-    #         print(f"CRITICAL: Could not find VirtualHost Config {args.vhost}")
-    #         sys.exit(CRITICAL)
+        error_log = vhost_cfg.get("ErrorLog")
+        custom_log = vhost_cfg.get("CustomLog")
+        log_formats = vhost_cfg.get("LogFormat")
 
-    #     error_log = vhost_cfg.get("ErrorLog")
-    #     custom_log = vhost_cfg.get("CustomLog")
-    #     log_formats = vhost_cfg.get("LogFormat")
+    error_log = error_log if args.vhost and error_log else config.get(
+        "ErrorLog")
+    custom_log = custom_log if args.vhost and custom_log else config.get(
+        "CustomLog")
+    log_formats = log_formats if args.vhost and log_formats else config.get(
+        "LogFormat")
 
-    # error_log = error_log if args.vhost and error_log else config.get(
-    #     "ErrorLog")
-    # custom_log = custom_log if args.vhost and custom_log else config.get(
-    #     "CustomLog")
-    # log_formats = log_formats if args.vhost and log_formats else config.get(
-    #     "LogFormat")
-
-    # if args.verbose:
-    #     print(f"error_log={error_log}")
-    #     print(f"custom_log={custom_log}")
-    #     print(f"log_formats={log_formats}")
+    if args.verbose:
+        print(f"error_log={error_log}")
+        print(f"custom_log={custom_log}")
+        print(f"log_formats={log_formats}")
 
     parser = alp.Parser("")
 
