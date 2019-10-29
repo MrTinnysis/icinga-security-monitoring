@@ -128,6 +128,7 @@ def main():
             vhost_cfg = next(
                 (vh for vh in vhosts if vh[0] == args.vhost), None)
         else:
+            print(type(vhosts))
             vhost_cfg = vhosts if vhosts[0] == args.vhost else None
 
         if not vhost_cfg:
