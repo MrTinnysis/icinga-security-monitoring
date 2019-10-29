@@ -121,18 +121,18 @@ def main():
     config = get_apache_config(
         args.config, env_vars=args.env, verbose=args.verbose)
 
-    if config.vhost != None:
+    if args.vhost != None:
         vhost_cfg = config.get("VirtualHost")
         print(vhost_cfg)
         error_log = vhost_cfg.get("ErrorLog")
         custom_log = vhost_cfg.get("CustomLog")
         log_formats = vhost_cfg.get("LogFormat")
 
-    error_log = error_log if config.vhost and error_log else config.get(
+    error_log = error_log if args.vhost and error_log else config.get(
         "ErrorLog")
-    custom_log = custom_log if config.vhost and custom_log else config.get(
+    custom_log = custom_log if args.vhost and custom_log else config.get(
         "CustomLog")
-    log_formats = log_formats if config.vhost and custom_log else config.get(
+    log_formats = log_formats if args.vhost and custom_log else config.get(
         "LogFormat")
 
     if args.verbose:
