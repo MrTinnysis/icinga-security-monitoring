@@ -39,11 +39,13 @@ class ApacheConfig:
             # check if the string contains a placeholder
             match = re.match("$\{(.+?)\}", value)
             if match:
+                print(match)
                 try:
                     var = match.group(1)
                     value = value.replace(f"${{{var}}}", env_vars[var])
                 except KeyError:
-                    raise ApacheConfigException(f"Undefined variable ${{{var}}}")
+                    raise ApacheConfigException(
+                        f"Undefined variable ${{{var}}}")
 
         elif type(value) == dict:
             # iterate dict
@@ -63,12 +65,11 @@ class ApacheConfig:
 
         if self.env_var_file:
             env_vars = self._parse_env_vars()
-
-        for key, value in config.items():
-            config[key] = self._process_vars(value, env_vars)
+            print(f"env_vars={env_vars}")
+            for key, value in config.items():
+                config[key] = self._process_vars(value, env_vars)
 
         return config
-
 
     def _parse_env_vars(self):
         env_vars = {}
@@ -117,7 +118,7 @@ class ApacheConfig:
 
 #                 if match:
 #                     var = match.group(1)
-                    
+
 
 #             if type(value) != str:
 #                 continue
