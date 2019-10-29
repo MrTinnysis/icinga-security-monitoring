@@ -37,9 +37,8 @@ class ApacheConfig:
     def _process_vars(self, value, env_vars):
         if type(value) == str:
             # check if the string contains a placeholder
-            match = re.match("$\{(.+?)\}", value)
+            match = re.match("\${(\w+?)}", value)
             if match:
-                print(match)
                 try:
                     var = match.group(1)
                     value = value.replace(f"${{{var}}}", env_vars[var])
