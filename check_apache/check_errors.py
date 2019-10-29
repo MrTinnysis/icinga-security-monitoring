@@ -122,8 +122,18 @@ def main():
         args.config, env_vars=args.env, verbose=args.verbose)
 
     if args.vhost != None:
-        vhost_cfg = config.get("VirtualHost")
-        print(vhost_cfg)
+        vhosts = config.get("VirtualHost")
+
+        if type(vhosts) == list:
+            vhost_cfg = next(
+                (vh for vh in vhosts if vh[0] == args.vhost), None)
+        else:
+            vhost_cfg = vhosts if vhosts[0] == args.vhost else None
+
+        if not vhost_cfg:
+            print(f"CRITICAL: Could not find VirtualHost Config {args.vhost}")
+            sys.exit(CRITICAL)
+
         error_log = vhost_cfg.get("ErrorLog")
         custom_log = vhost_cfg.get("CustomLog")
         log_formats = vhost_cfg.get("LogFormat")

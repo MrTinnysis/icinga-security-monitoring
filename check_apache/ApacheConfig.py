@@ -46,11 +46,6 @@ def get_apache_config(path, options=None, env_vars=None, verbose=False):
     return config
 
 
-def _pre_open_hook(file, base):
-    print(file)
-    return True, file, base
-
-
 def _load_env_vars(env_vars, verbose=False):
     output = {}
     regex = re.compile("^export (.*)=(.*)$")
