@@ -24,12 +24,29 @@ class ApacheConfig:
 
         self.config = self._load_cfg()
 
-        # self.env_vars = None
-        # if env_var_file:
-        #     self.env_vars = self._parse_env_vars(env_var_file)
+    def get(self, key, vhost=None, default=None):
+        value = self.config.get(key, default)
 
-    def get(self, key, default=None):
-        return self.config.get(key, default)
+        if vhost:
+            vhost_cfg = self.get_vhost_config(vhost)
+
+            if not vhost_cfg:
+                print(f"Could not find virtual host config {vhost}")
+            else:
+                # override value with vhost val if present
+                value = vhost_cfg.get(key, value)
+
+        return value
+
+    def get_vhost_config(self, vhost_name):
+        vhosts = self.config.get("VirtualHost")
+
+        if not vhosts:
+            return None
+        elif type(vhosts) == list:
+            return next((vh[vhost_name] for vh in vhosts if vhost_name in vh), None)
+        else:
+            return vhosts.get(vhost_name)
 
     def reload(self):
         self.config = self._load_cfg()
@@ -86,65 +103,3 @@ class ApacheConfig:
 
     def __repr__(self):
         return self.config.__repr__()
-
-
-# def get_apache_config(path, options=None, env_vars=None, verbose=False):
-
-#     # if env_vars:
-#     #     env_vars = _load_env_vars(env_vars, verbose)
-
-#     # set default options if none are given
-#     options = options if options != None else {
-#         "useapacheinclude": True,
-#         "includerelative": True,
-#         "includedirectories": True,
-#         "configpath": [os.path.split(path)[0]]
-#     }
-
-#     # load config file
-#     with apacheconfig.make_loader(**options) as loader:
-#         config = loader.load(path)
-
-#     # load environment variables if provided
-#     if env_vars:
-#         env_vars = _load_env_vars(env_vars, verbose)
-
-#         #regex = re.compile("$\{(.+?)\}")
-
-#         for key, value in config.items():
-#             if type(value) == str:
-#                 match = re.match("$\{(.+?)\}", value)
-
-#                 if match:
-#                     var = match.group(1)
-
-
-#             if type(value) != str:
-#                 continue
-#             match = regex.match(value)
-#             if match:
-#                 var = match.group(1)
-#                 config[key] = value.replace(f"${{{var}}}", env_vars[var])
-
-#     if verbose:
-#         print(config)
-
-#     return config
-
-
-# def _load_env_vars(env_vars, verbose=False):
-#     output = {}
-#     regex = re.compile("^export (.*)=(.*)$")
-#     with open(env_vars, "r") as file:
-#         for line in file:
-#             match = regex.match(line)
-
-#             if match:
-#                 # Suffix currently not supported...
-#                 output[match.group(1)] = match.group(
-#                     2).replace("$SUFFIX", "")
-
-#     if verbose:
-#         print(output)
-
-#     return output
