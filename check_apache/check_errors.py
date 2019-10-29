@@ -43,67 +43,6 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-# def parse_env_vars(env_var, verbose=False):
-#     suffix = ""
-#     output = {}
-#     regex = re.compile("^export (.*)=(.*)$")
-#     with open(env_var, "r") as file:
-#         for line in file:
-#             # Suffixes currently not supported...
-#             # match = re.match("SUFFIX=(.*)")
-#             # if "SUFFIX=" in line:
-#             #     pass
-
-#             match = regex.match(line)
-
-#             if match:
-#                 output[match.group(1)] = match.group(
-#                     2).replace("$SUFFIX", suffix)
-
-#     if verbose:
-#         print(output)
-
-#     return output
-
-
-# def parse_apache_config(path, env_var=None, verbose=False):
-#     if env_var:
-#         env_var = parse_env_vars(env_var, verbose)
-
-
-#     options = {
-#         "useapacheinclude": True,
-#         "includerelative": True,
-#         "includedirectories": True,
-#         "configpath": [path]
-#     }
-
-#     with apacheconfig.make_loader(**options) as loader:
-#         config = loader.load(path)
-
-#     if verbose:
-#         print(config)
-
-#     return config
-
-
-# def get_log_formats(config):
-#     return [line for line in config if "LogFormat" in line]
-
-
-# def get_log_dirs(config):
-#     error_log_dir = None
-#     custom_log_dir = None
-#     for line in config:
-#         if "ErrorLog" in line:
-#             error_log_dir = line
-
-#         if "CustomLog" in line:
-#             custom_log_dir = line
-
-#     return (error_log_dir, custom_log_dir)
-
-
 def main():
     # Main Plugin Function
 
@@ -126,10 +65,9 @@ def main():
 
         if type(vhosts) == list:
             vhost_cfg = next(
-                (vh for vh in vhosts if vh[0] == args.vhost), None)
+                (vh[args.vhost] for vh in vhosts if vh.get(args.vhost) != None), None)
         else:
-            print(type(vhosts))
-            vhost_cfg = vhosts if vhosts[0] == args.vhost else None
+            vhost_cfg = vhosts.get(args.vhost)
 
         if not vhost_cfg:
             print(f"CRITICAL: Could not find VirtualHost Config {args.vhost}")
