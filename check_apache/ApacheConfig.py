@@ -29,15 +29,7 @@ class ApacheConfig:
         #     self.env_vars = self._parse_env_vars(env_var_file)
 
     def get(self, key, default=None):
-        # retrieve config value
-        val = self.config.get(key, default)
-
-        # if no environment is passed, return configured value
-        if not self.env_vars:
-            return val
-
-        # else return processed val
-        return self._process_vars(val)
+        return self.config.get(key, default)
 
     def reload(self):
         self.config = self._load_cfg()
@@ -55,13 +47,13 @@ class ApacheConfig:
 
         elif type(value) == dict:
             # iterate dict
-            for k, v in value.items():
+            for key, val in value.items():
                 # process each value separately and update dict
-                value[k] = self._process_vars(v)
+                value[key] = self._process_vars(val, env_vars)
 
         else:
             # assume generic iterable (list)
-            value = [self._process_vars(v) for v in value]
+            value = [self._process_vars(val, env_vars) for val in value]
 
         return value
 
