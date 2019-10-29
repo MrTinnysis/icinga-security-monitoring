@@ -24,6 +24,7 @@ class ApacheConfig:
 
         self.config = self._load_cfg()
 
+
     def get(self, key, vhost=None, default=None):
         value = self.config.get(key, default)
 
@@ -31,7 +32,7 @@ class ApacheConfig:
             vhost_cfg = self.get_vhost_config(vhost)
 
             if not vhost_cfg:
-                print(f"Could not find virtual host config {vhost}")
+                print(f"VirtualHost '{vhost}' doesn't exists. Missing an include?")
             else:
                 # override value with vhost val if present
                 value = vhost_cfg.get(key, value)
