@@ -63,6 +63,8 @@ def _pre_read_hook(src, content):
         content = content.replace(
             f"${{{var}}}", ENV_VARS.get(var, f"${{{var}}}"))
 
+    print(content)
+
     return True, src, content
 
 
