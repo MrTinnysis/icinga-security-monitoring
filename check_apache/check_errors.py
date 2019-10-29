@@ -57,7 +57,7 @@ def main():
         print(f"CRITICAL: {args.config} does not denote a file!")
         sys.exit(CRITICAL)
 
-    config = ApacheConfig(args.path, env_var_file=args.env)
+    config = ApacheConfig(args.config, env_var_file=args.env)
 
     if args.verbose:
         print(f"config={config}")
