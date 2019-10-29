@@ -8,7 +8,7 @@ import re
 # https://pypi.org/project/apache-log-parser/1.7.0/
 import apache_log_parser as alp
 
-from ApacheConfig import get_apache_config
+from ApacheConfig import ApacheConfig
 
 
 # monitoring plugin return codes
@@ -57,44 +57,42 @@ def main():
         print(f"CRITICAL: {args.config} does not denote a file!")
         sys.exit(CRITICAL)
 
-    config = get_apache_config(
-        args.config, env_vars=args.env, verbose=args.verbose)
-
-    if args.vhost != None:
-        vhosts = config.get("VirtualHost")
-
-        if type(vhosts) == list:
-            vhost_cfg = next(
-                (vh[args.vhost] for vh in vhosts if vh.get(args.vhost) != None), None)
-        else:
-            vhost_cfg = vhosts.get(args.vhost)
-
-        if not vhost_cfg:
-            print(f"CRITICAL: Could not find VirtualHost Config {args.vhost}")
-            sys.exit(CRITICAL)
-
-        error_log = vhost_cfg.get("ErrorLog")
-        custom_log = vhost_cfg.get("CustomLog")
-        log_formats = vhost_cfg.get("LogFormat")
-
-    error_log = error_log if args.vhost and error_log else config.get(
-        "ErrorLog")
-    custom_log = custom_log if args.vhost and custom_log else config.get(
-        "CustomLog")
-    log_formats = log_formats if args.vhost and log_formats else config.get(
-        "LogFormat")
+    config = ApacheConfig(args.path, env_var_file=args.env)
 
     if args.verbose:
-        print(f"error_log={error_log}")
-        print(f"custom_log={custom_log}")
-        print(f"log_formats={log_formats}")
+        print(f"config={config}")
 
-    # with open(args.config, "r") as file:
-    #     log_dirs = get_log_dirs(file)
-    #     log_formats = get_log_formats(file)
+    # config = get_apache_config(
+    #     args.config, env_vars=args.env, verbose=args.verbose)
 
-    # if None in log_dirs or len(log_formats) == 0:
-    #     print(f"CRITICAL: Failed to read config {args.config}")
+    # if args.vhost != None:
+    #     vhosts = config.get("VirtualHost")
+
+    #     if type(vhosts) == list:
+    #         vhost_cfg = next(
+    #             (vh[args.vhost] for vh in vhosts if vh.get(args.vhost) != None), None)
+    #     else:
+    #         vhost_cfg = vhosts.get(args.vhost)
+
+    #     if not vhost_cfg:
+    #         print(f"CRITICAL: Could not find VirtualHost Config {args.vhost}")
+    #         sys.exit(CRITICAL)
+
+    #     error_log = vhost_cfg.get("ErrorLog")
+    #     custom_log = vhost_cfg.get("CustomLog")
+    #     log_formats = vhost_cfg.get("LogFormat")
+
+    # error_log = error_log if args.vhost and error_log else config.get(
+    #     "ErrorLog")
+    # custom_log = custom_log if args.vhost and custom_log else config.get(
+    #     "CustomLog")
+    # log_formats = log_formats if args.vhost and log_formats else config.get(
+    #     "LogFormat")
+
+    # if args.verbose:
+    #     print(f"error_log={error_log}")
+    #     print(f"custom_log={custom_log}")
+    #     print(f"log_formats={log_formats}")
 
     parser = alp.Parser("")
 
