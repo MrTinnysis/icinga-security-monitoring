@@ -117,9 +117,9 @@ def main():
     config = get_apache_config(
         args.config, env_vars=args.env, verbose=args.verbose)
 
-    error_log = config["ErrorLog"]
-    custom_log = config["CustomLog"]
-    log_formats = config["LogFormat"]
+    error_log = config.get("ErrorLog")
+    custom_log = config.get("CustomLog")
+    log_formats = config.get("LogFormat")
 
     if args.verbose:
         print(f"error_log={error_log}")

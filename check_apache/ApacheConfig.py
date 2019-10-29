@@ -32,8 +32,9 @@ def get_apache_config(path, options=None, env_vars=None, verbose=False):
         env_vars = _load_env_vars(env_vars, verbose)
 
         # replace placeholders in config values with env vars
-        for key, val in config:
-            val = val.replace(f"${{{key}}}", env_vars[key])
+        for key, val in config.items():
+            config[key] = val.replace(f"${{{key}}}", env_vars[key])
+            # val = val.replace(f"${{{key}}}", env_vars[key])
 
     if verbose:
         print(config)
