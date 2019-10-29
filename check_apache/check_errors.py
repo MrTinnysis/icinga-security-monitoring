@@ -81,7 +81,7 @@ def main():
         "ErrorLog")
     custom_log = custom_log if args.vhost and custom_log else config.get(
         "CustomLog")
-    log_formats = log_formats if args.vhost and custom_log else config.get(
+    log_formats = log_formats if args.vhost and log_formats else config.get(
         "LogFormat")
 
     if args.verbose:

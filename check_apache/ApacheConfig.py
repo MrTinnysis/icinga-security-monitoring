@@ -6,17 +6,26 @@ import re
 import apacheconfig
 
 
+# Variable Placeholder Regex
+VAR_REGEX = re.compile("$\{(.+?)\}")
+# Environment Variables Dict
+ENV_VARS = {}
+
+
 def get_apache_config(path, options=None, env_vars=None, verbose=False):
 
     if env_vars:
-        env_vars = _load_env_vars(env_vars, verbose)
+        ENV_VARS = _load_env_vars(env_vars, verbose)
 
     # set default options if none are given
     options = options if options != None else {
         "useapacheinclude": True,
         "includerelative": True,
         "includedirectories": True,
-        "configpath": [os.path.split(path)[0]]
+        "configpath": [os.path.split(path)[0]],
+        "plug": {
+            "pre_read": _pre_read_hook if env_vars != None else None
+        }
     }
 
     # print options if verbose output is enabled
@@ -44,6 +53,17 @@ def get_apache_config(path, options=None, env_vars=None, verbose=False):
         print(config)
 
     return config
+
+
+def _pre_read_hook(src, content):
+    match = VAR_REGEX.match(content)
+
+    if match:
+        var = match.group(1)
+        content = content.replace(
+            f"${{{var}}}", ENV_VARS.get(var, f"${{{var}}}"))
+
+    return True, src, content
 
 
 def _load_env_vars(env_vars, verbose=False):
