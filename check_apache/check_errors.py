@@ -8,7 +8,7 @@ import re
 # https://pypi.org/project/apache-log-parser/1.7.0/
 import apache_log_parser as alp
 
-from check_apache.ApacheConfig import get_apache_config
+from ApacheConfig import get_apache_config
 
 
 # monitoring plugin return codes
