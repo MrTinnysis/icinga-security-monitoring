@@ -29,11 +29,15 @@ def parse_args():
     )
     argumentParser.add_argument(
         "-c", "--config", default="/etc/apache2/apache2.conf",
-        help=""
+        help="specify the config file that should be loaded (used to locate corresponding log files)"
     )
     argumentParser.add_argument(
         "-e", "--env", nargs="?", const="/etc/apache2/envvars", default=None,
-        help=""
+        help="specify the environment variables file to load (used to parse the config file)"
+    )
+    argumentParser.add_argument(
+        "-v", "--vhost", default=None,
+        help="specify the virtual host whose config should be loaded (if any)"
     )
 
     return argumentParser.parse_args()
@@ -117,9 +121,19 @@ def main():
     config = get_apache_config(
         args.config, env_vars=args.env, verbose=args.verbose)
 
-    error_log = config.get("ErrorLog")
-    custom_log = config.get("CustomLog")
-    log_formats = config.get("LogFormat")
+    if config.vhost != None:
+        vhost_cfg = config.get("VirtualHost")
+        print(vhost_cfg)
+        error_log = vhost_cfg.get("ErrorLog")
+        custom_log = vhost_cfg.get("CustomLog")
+        log_formats = vhost_cfg.get("LogFormat")
+
+    error_log = error_log if config.vhost and error_log else config.get(
+        "ErrorLog")
+    custom_log = custom_log if config.vhost and custom_log else config.get(
+        "CustomLog")
+    log_formats = log_formats if config.vhost and custom_log else config.get(
+        "LogFormat")
 
     if args.verbose:
         print(f"error_log={error_log}")

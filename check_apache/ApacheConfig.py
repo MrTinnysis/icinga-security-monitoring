@@ -11,18 +11,12 @@ def get_apache_config(path, options=None, env_vars=None, verbose=False):
     if env_vars:
         env_vars = _load_env_vars(env_vars, verbose)
 
-
     # set default options if none are given
     options = options if options != None else {
         "useapacheinclude": True,
         "includerelative": True,
         "includedirectories": True,
-        "configpath": [os.path.split(path)[0]],
-        "flagbits": env_vars,
-        #"interpolateenv": env_vars != None,
-        "plug": {
-            "pre_open": _pre_open_hook
-        }
+        "configpath": [os.path.split(path)[0]]
     }
 
     # print options if verbose output is enabled
@@ -51,9 +45,11 @@ def get_apache_config(path, options=None, env_vars=None, verbose=False):
 
     return config
 
+
 def _pre_open_hook(file, base):
     print(file)
     return True, file, base
+
 
 def _load_env_vars(env_vars, verbose=False):
     output = {}
