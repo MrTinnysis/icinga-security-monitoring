@@ -2,6 +2,8 @@
 import os
 import re
 
+from pprint import pformat
+
 # https://pypi.org/project/apacheconfig/
 import apacheconfig
 
@@ -104,6 +106,6 @@ class ApacheConfig:
 
     def __repr__(self):
         if self.env_vars:
-            return f"ENV_VARS: {self.env_vars}\n\nCONFIG: {self.config}"
+            return f"ENV_VARS: {pformat(self.env_vars)}\nCONFIG: {pformat(self.config)}"
         else:
-            return f"ENV_VARS: {{}}\nCONFIG: {self.config}"
+            return f"ENV_VARS: None\nCONFIG: {pformat(self.config)}"

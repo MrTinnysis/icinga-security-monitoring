@@ -14,24 +14,6 @@ CRITICAL = 2
 UNKNOWN = 3
 
 
-def find_server_signature(httpd_conf):
-    # Searches a "ServerSignature" Configuration Entry and returns the
-    # corresponding line, or None if no such Entry was found
-    for line in httpd_conf:
-        if "ServerSignature" in line:
-            return line
-    return None
-
-
-def find_server_tokens(httpd_conf):
-    # Searches a "ServerTokens" Configuration Entry and returns the
-    # corresponding line, or None if no such Entry was found
-    for line in httpd_conf:
-        if "ServerTokens" in line:
-            return line
-    return None
-
-
 def parse_args():
     # Parses the CLI Arguments and returns a dict containing the
     # corresponding values
