@@ -19,7 +19,7 @@ class ApacheConfig:
             "useapacheinclude": True,
             "includerelative": True,
             "includedirectories": True,
-            "configpath": ["."]
+            "configpath": [os.path.split(path)[0]]
         }
 
         self.config = self._load_cfg()
