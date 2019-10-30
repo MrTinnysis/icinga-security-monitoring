@@ -15,6 +15,7 @@ class ApacheConfig:
     def __init__(self, path, options=None, env_var_file=None):
         self.path = path
         self.env_var_file = env_var_file
+        self.env_vars = None
         self.options = options if options != None else {
             "useapacheinclude": True,
             "includerelative": True,
