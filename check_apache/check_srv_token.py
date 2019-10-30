@@ -3,6 +3,9 @@
 import argparse
 import sys
 import re
+import os
+
+from ApacheConfig import ApacheConfig
 
 # monitoring plugin return codes
 OK = 0
@@ -12,7 +15,7 @@ UNKNOWN = 3
 
 
 def find_server_signature(httpd_conf):
-    # Searches a "ServerSignature" Configuration Entry and returns the 
+    # Searches a "ServerSignature" Configuration Entry and returns the
     # corresponding line, or None if no such Entry was found
     for line in httpd_conf:
         if "ServerSignature" in line:
@@ -30,16 +33,26 @@ def find_server_tokens(httpd_conf):
 
 
 def parse_args():
-    # Parses the CLI Arguments and returns a dict containing the 
+    # Parses the CLI Arguments and returns a dict containing the
     # corresponding values
     argumentParser = argparse.ArgumentParser()
 
     argumentParser.add_argument(
         '-v', '--verbose', nargs="?", const=True, default=False,
-        help='verbose output')
+        help='verbose output'
+    )
     argumentParser.add_argument(
-        '--path', default="/usr/local/apache2/conf/httpd.conf",
-        help='path to the httpd.conf configuration file')
+        "-c", "--config", default="/etc/apache2/apache2.conf",
+        help="path to the configuration file"
+    )
+    argumentParser.add_argument(
+        "-e", "--env", nargs="?", const="/etc/apache2/envvars", default=None,
+        help="path to the environment variables file"
+    )
+    argumentParser.add_argument(
+        "-vh", "--vhost", default=None,
+        help="virtual host whose config should be loaded (if any)"
+    )
 
     return argumentParser.parse_args()
 
@@ -54,20 +67,31 @@ def main():
     if args.verbose:
         print(args)
 
-    # TODO: Switch to ApacheConfig
-
-    try:
-        # open the configuration file
-        with open(args.path, "r") as httpd_conf:
-            # search entries in httpd_conf file
-            server_sig = find_server_signature(httpd_conf)
-            server_tokens = find_server_tokens(httpd_conf)
-    except FileNotFoundError:
-        # Abort if file could not be found
-        print("CRITICAL: Config File Not Found")
+    if not os.path.isfile(args.config):
+        print(f"CRITICAL: {args.config} does not denote a file!")
         sys.exit(CRITICAL)
 
-    # print the configured entries 
+    if args.env and not os.path.isfile(args.env):
+        print(f"CRITICAL: {args.env} does not denote a file!")
+        sys.exit(CRITICAL)
+
+    config = ApacheConfig(args.config, env_var_file=args.env)
+
+    server_sig = config.get("ServerSignature", args.vhost)
+    server_tokens = config.get("ServerTokens", args.vhost)
+
+    # try:
+    #     # open the configuration file
+    #     with open(args.config, "r") as httpd_conf:
+    #         # search entries in httpd_conf file
+    #         server_sig = find_server_signature(httpd_conf)
+    #         server_tokens = find_server_tokens(httpd_conf)
+    # except FileNotFoundError:
+    #     # Abort if file could not be found
+    #     print("CRITICAL: Config File Not Found")
+    #     sys.exit(CRITICAL)
+
+    # print the configured entries
     if args.verbose:
         print(f"server_sig = {server_sig}")
         print(f"server_tokens = {server_tokens}")
@@ -89,8 +113,10 @@ def main():
     # Compare the configured values with the suggested values
     if match_sig.group(1) != "Off" or match_token.group(1) != "Prod":
         print("WARNING: Potentially insecure configuration for ServerSignature and/or ServerTokens")
-        print(f"Configured Value: {server_sig}, should be 'ServerSignature Off'")
-        print(f"Configured Value: {server_tokens}, should be 'ServerTokens Prod'")
+        print(
+            f"Configured Value: {server_sig}, should be 'ServerSignature Off'")
+        print(
+            f"Configured Value: {server_tokens}, should be 'ServerTokens Prod'")
         sys.exit(WARNING)
 
     print("OK: Server Information hidden")
