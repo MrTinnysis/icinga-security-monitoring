@@ -71,8 +71,8 @@ def main():
     error_log = config.get("ErrorLog", vhost=args.vhost)
 
     if not error_log_format:
-        # Expect common log format, if nothing else specified
-        error_log_format = "%h %l %u %t \"%r\" %>s %b"
+        # set default error log format
+        error_log_format = "[%t] [%l] [pid %P] %F: %E: [client %a] %M"
 
     if args.verbose:
         print(f"error_log_format={error_log_format}")
