@@ -72,7 +72,7 @@ def main():
 
     if not error_log_format:
         # set default error log format
-        error_log_format = "[%t] [%l] [pid %P] %F: %E: [client %a] %M"
+        error_log_format = "[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i"
 
     if args.verbose:
         print(f"error_log_format={error_log_format}")
