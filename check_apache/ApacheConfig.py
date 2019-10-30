@@ -104,6 +104,6 @@ class ApacheConfig:
 
     def __repr__(self):
         if self.env_vars:
-            return f"ENV_VARS: {self.env_vars}\nCONFIG: {self.config}"
+            return f"{{'ENV_VARS': {self.env_vars},\n\n'CONFIG': {self.config}}}"
         else:
             return f"ENV_VARS: {{}}\nCONFIG: {self.config}"

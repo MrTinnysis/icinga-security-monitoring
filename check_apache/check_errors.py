@@ -64,7 +64,7 @@ def main():
     config = ApacheConfig(args.config, env_var_file=args.env)
 
     if args.verbose:
-        print(f"config={config}")
+        print(config)
 
     error_log = config.get("ErrorLog", vhost=args.vhost)
     custom_log = config.get("CustomLog", vhost=args.vhost)
