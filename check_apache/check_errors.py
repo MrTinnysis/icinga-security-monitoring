@@ -7,7 +7,7 @@ import re
 
 # https://github.com/rory/apache-log-parser
 # https://pypi.org/project/apache-log-parser/1.7.0/
-import apache_log_parser as alp
+import apache_log_parser
 
 from ApacheConfig import ApacheConfig
 
@@ -67,17 +67,28 @@ def main():
     if args.verbose:
         print(config)
 
+    error_log_format = config.get("ErrorLogFormat", vhost=args.vhost)
     error_log = config.get("ErrorLog", vhost=args.vhost)
-    custom_log = config.get("CustomLog", vhost=args.vhost)
-    log_formats = config.get("LogFormat", vhost=args.vhost)
+
+    if not error_log_format:
+        # Expect common log format, if nothing else specified
+        error_log_format = "%h %l %u %t \"%r\" %>s %b"
 
     if args.verbose:
+        print(f"error_log_format={error_log_format}")
         print(f"error_log={error_log}")
-        print(f"custom_log={custom_log}")
-        print(f"log_formats={log_formats}")
 
-    # TODO
-    parser = alp.Parser("")
+    if not os.path.isfile(error_log):
+        print("CRITICAL: The configured ErrorLog path does not denote a file!")
+        sys.exit(CRITICAL)
+
+    parser = apache_log_parser.make_parser(error_log_format)
+
+    with open(error_log, "r") as file:
+        # checking the whole file might not be a goot idea...
+        log_data = [parser(line) for line in file]
+
+    print(log_data)
 
 
 if __name__ == "__main__":
