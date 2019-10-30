@@ -80,17 +80,6 @@ def main():
     server_sig = config.get("ServerSignature", args.vhost)
     server_tokens = config.get("ServerTokens", args.vhost)
 
-    # try:
-    #     # open the configuration file
-    #     with open(args.config, "r") as httpd_conf:
-    #         # search entries in httpd_conf file
-    #         server_sig = find_server_signature(httpd_conf)
-    #         server_tokens = find_server_tokens(httpd_conf)
-    # except FileNotFoundError:
-    #     # Abort if file could not be found
-    #     print("CRITICAL: Config File Not Found")
-    #     sys.exit(CRITICAL)
-
     # print the configured entries
     if args.verbose:
         print(f"server_sig = {server_sig}")
@@ -101,22 +90,12 @@ def main():
         print("CRITICAL: Missing Configuration for ServerSignature and/or ServerTokens")
         sys.exit(CRITICAL)
 
-    # get configured values for server sig and server tokens
-    match_sig = re.match("^ServerSignature (\w+)", server_sig)
-    match_token = re.match("^ServerTokens (\w+)", server_tokens)
-
-    # Abort if configured values could not be retrieved
-    if not match_sig or not match_token:
-        print("CRITICAL: Failed to read configuration (is it commented out?)")
-        sys.exit(CRITICAL)
-
-    # Compare the configured values with the suggested values
-    if match_sig.group(1) != "Off" or match_token.group(1) != "Prod":
+    if server_sig != "Off" or server_tokens != "Prod":
         print("WARNING: Potentially insecure configuration for ServerSignature and/or ServerTokens")
         print(
-            f"Configured Value: {server_sig}, should be 'ServerSignature Off'")
+            f"Configured Value: 'ServerSignature {server_sig}', should be 'ServerSignature Off'")
         print(
-            f"Configured Value: {server_tokens}, should be 'ServerTokens Prod'")
+            f"Configured Value: 'ServerTokens {server_tokens}', should be 'ServerTokens Prod'")
         sys.exit(WARNING)
 
     print("OK: Server Information hidden")
