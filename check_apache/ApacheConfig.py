@@ -19,11 +19,10 @@ class ApacheConfig:
             "useapacheinclude": True,
             "includerelative": True,
             "includedirectories": True,
-            "configpath": [os.path.split(path)[0]]
+            "configpath": ["."]
         }
 
         self.config = self._load_cfg()
-
 
     def get(self, key, vhost=None, default=None):
         value = self.config.get(key, default)
@@ -32,7 +31,8 @@ class ApacheConfig:
             vhost_cfg = self.get_vhost_config(vhost)
 
             if not vhost_cfg:
-                print(f"VirtualHost '{vhost}' doesn't exists. Missing an include?")
+                print(
+                    f"VirtualHost '{vhost}' doesn't exists. Missing an include?")
             else:
                 # override value with vhost val if present
                 value = vhost_cfg.get(key, value)
@@ -52,14 +52,14 @@ class ApacheConfig:
     def reload(self):
         self.config = self._load_cfg()
 
-    def _process_vars(self, value, env_vars):
+    def _process_vars(self, value):
         if type(value) == str:
             # check if the string contains a placeholder
             match = re.match("\${(\w+?)}", value)
             if match:
                 try:
                     var = match.group(1)
-                    value = value.replace(f"${{{var}}}", env_vars[var])
+                    value = value.replace(f"${{{var}}}", self.env_vars[var])
                 except KeyError:
                     raise ApacheConfigException(
                         f"Undefined variable ${{{var}}}")
@@ -68,11 +68,11 @@ class ApacheConfig:
             # iterate dict
             for key, val in value.items():
                 # process each value separately and update dict
-                value[key] = self._process_vars(val, env_vars)
+                value[key] = self._process_vars(val)
 
         else:
             # assume generic iterable (list)
-            value = [self._process_vars(val, env_vars) for val in value]
+            value = [self._process_vars(val) for val in value]
 
         return value
 
@@ -81,10 +81,9 @@ class ApacheConfig:
             config = loader.load(self.path)
 
         if self.env_var_file:
-            env_vars = self._parse_env_vars()
-            print(f"env_vars={env_vars}")
+            self.env_vars = self._parse_env_vars()
             for key, value in config.items():
-                config[key] = self._process_vars(value, env_vars)
+                config[key] = self._process_vars(value)
 
         return config
 
@@ -103,4 +102,7 @@ class ApacheConfig:
         return env_vars
 
     def __repr__(self):
-        return self.config.__repr__()
+        if self.env_vars:
+            return f"ENV_VARS: {self.env_vars}\nCONFIG: {self.config}"
+        else:
+            return f"ENV_VARS: {{}}\nCONFIG: {self.config}"
