@@ -67,23 +67,27 @@ def main():
     if args.verbose:
         print(config)
 
-    log_formats = config.get("LogFormat", vhost=args.vhost)
-    log_file = config.get("CustomLog", vhost=args.vhost)
+    log_format_list = config.get("LogFormat", vhost=args.vhost)
+    custom_log = config.get("CustomLog", vhost=args.vhost)
+
+    # convert format to list if only one format is configured
+    if type(log_format_list) != list:
+        log_format_list = [log_format_list]
 
     if args.verbose:
-        print(f"log_formats={log_formats}")
-        print(f"log_file={log_file}")
+        print(f"log_format_list={log_format_list}")
+        print(f"custom_log={custom_log}")
 
-    if not log_formats:
+    if not log_format_list:
         print("CRITICAL: Not log format specified")
         sys.exit(CRITICAL)
 
     # CustomLog definition consists of path and either "nickname" or format string
-    match = re.match("(.+?) (.+)", log_file)
+    match = re.match("(.+?) (.+)", custom_log)
 
     # Check format
     if not match:
-        print(f"CRITICAL: Invalid CustomLog configuration {log_file}")
+        print(f"CRITICAL: Invalid CustomLog configuration {custom_log}")
         sys.exit(CRITICAL)
 
     # set log_file to be the path
@@ -96,7 +100,7 @@ def main():
     else:
         # nickname
         log_format = find_logformat_by_nickname(
-            log_formats, match.group(2))
+            log_format_list, match.group(2))
 
     if args.verbose:
         print(f"log_file={log_file}")
@@ -137,7 +141,8 @@ def find_logformat_by_nickname(log_format_list, nickname):
         match = regex.match(log_format)
         if match:
             return match.group(1)
-    return None
+    print(f"CRITICAL: Could not find LogFormat {nickname}")
+    sys.exit(CRITICAL)
 
 
 if __name__ == "__main__":
