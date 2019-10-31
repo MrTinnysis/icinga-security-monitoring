@@ -98,7 +98,8 @@ def main():
         # if '%' in match.group(2):
         # format string (remove "")
         print("format string")
-        log_format = match.group(2)[1:-1]
+        #log_format = match.group(2)[1:-1]
+        log_format = match.group(2).strip('"')
     else:
         # nickname
         print("nickname")
