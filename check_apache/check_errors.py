@@ -62,11 +62,24 @@ def main():
         print(f"CRITICAL: {args.env} does not denote a file!")
         sys.exit(CRITICAL)
 
+    # load apache configuration
     config = ApacheConfig(args.config, env_var_file=args.env)
 
     if args.verbose:
         print(config)
 
+    # retrieve data from logfile
+    log_data = _get_log_data(config, args)
+
+    # TODO
+    # build filter (date/time + return code)
+
+    # count entries (total and per ip)
+
+    # compare to threshold
+
+
+def _get_log_data(config, args):
     log_format_list = config.get("LogFormat", vhost=args.vhost)
     custom_log = config.get("CustomLog", vhost=args.vhost)
 
@@ -99,7 +112,7 @@ def main():
         log_format = match.group(2)[1:-1]
     else:
         # nickname
-        log_format = find_logformat_by_nickname(
+        log_format = _find_logformat_by_nickname(
             log_format_list, match.group(2))
 
     if args.verbose:
@@ -114,39 +127,13 @@ def main():
     # create logfile parser using the given format
     parser = apache_log_parser.make_parser(log_format)
 
-    # log_data = []
     with open(log_file, "r") as file:
         log_data = [parser(line) for line in file]
-        # for line in file:
-        #     log_data += parser(line)
 
-    print(log_data)
-
-    # error_log_format = config.get("ErrorLogFormat", vhost=args.vhost)
-    # error_log = config.get("ErrorLog", vhost=args.vhost)
-
-    # if not error_log_format:
-    #     # set default error log format
-    #     error_log_format = "[%{u}t] [%m:%l] [pid %P:tid %T] %M"
-
-    # if args.verbose:
-    #     print(f"error_log_format={error_log_format}")
-    #     print(f"error_log={error_log}")
-
-    # if not os.path.isfile(error_log):
-    #     print("CRITICAL: The configured ErrorLog path does not denote a file!")
-    #     sys.exit(CRITICAL)
-
-    # parser = apache_log_parser.make_parser(error_log_format)
-
-    # with open(error_log, "r") as file:
-    #     # checking the whole file might not be a goot idea...
-    #     log_data = [parser(line) for line in file]
-
-    # print(log_data)
+    return log_data
 
 
-def find_logformat_by_nickname(log_format_list, nickname):
+def _find_logformat_by_nickname(log_format_list, nickname):
     regex = re.compile(f'"(.+)" {nickname}$')
     for log_format in log_format_list:
         match = regex.match(log_format)
