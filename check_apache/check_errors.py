@@ -67,28 +67,77 @@ def main():
     if args.verbose:
         print(config)
 
-    error_log_format = config.get("ErrorLogFormat", vhost=args.vhost)
-    error_log = config.get("ErrorLog", vhost=args.vhost)
-
-    if not error_log_format:
-        # set default error log format
-        error_log_format = "[%{u}t] [%m:%l] [pid %P:tid %T] %M"
+    log_formats = config.get("LogFormat", vhost=args.vhost)
+    log_file = config.get("CustomLog", vhost=args.vhost)
 
     if args.verbose:
-        print(f"error_log_format={error_log_format}")
-        print(f"error_log={error_log}")
+        print(f"log_formats={log_formats}")
+        print(f"log_file={log_file}")
 
-    if not os.path.isfile(error_log):
-        print("CRITICAL: The configured ErrorLog path does not denote a file!")
+    if not log_formats:
+        print("CRITICAL: Not log format specified")
         sys.exit(CRITICAL)
 
-    parser = apache_log_parser.make_parser(error_log_format)
+    # CustomLog definition consists of path and either "nickname" or format string
+    match = re.match("(.+?) (.+)", log_file)
 
-    with open(error_log, "r") as file:
-        # checking the whole file might not be a goot idea...
-        log_data = [parser(line) for line in file]
+    # Check format
+    if not match:
+        print(f"CRITICAL: Invalid CustomLog configuration {log_file}")
+        sys.exit(CRITICAL)
 
-    print(log_data)
+    # set log_file to be the path
+    log_file = match.group(1)
+
+    # check if nickname/format (format strings contain '"')
+    if '"' in match.group(2):
+        # format string (remove '"')
+        log_format = match.group(2).strip('"')
+    else:
+        # nickname
+        log_format = find_logformat_by_nickname(
+            log_formats, match.group(2))
+
+    if args.verbose:
+        print(f"log_file={log_file}")
+        print(f"log_format={log_format}")
+
+    if not os.path.isfile(log_file):
+        print(
+            f"CRITICAL: The configured CustomLog path does not denote a file: {log_file}")
+        sys.exit(CRITICAL)
+
+    # error_log_format = config.get("ErrorLogFormat", vhost=args.vhost)
+    # error_log = config.get("ErrorLog", vhost=args.vhost)
+
+    # if not error_log_format:
+    #     # set default error log format
+    #     error_log_format = "[%{u}t] [%m:%l] [pid %P:tid %T] %M"
+
+    # if args.verbose:
+    #     print(f"error_log_format={error_log_format}")
+    #     print(f"error_log={error_log}")
+
+    # if not os.path.isfile(error_log):
+    #     print("CRITICAL: The configured ErrorLog path does not denote a file!")
+    #     sys.exit(CRITICAL)
+
+    # parser = apache_log_parser.make_parser(error_log_format)
+
+    # with open(error_log, "r") as file:
+    #     # checking the whole file might not be a goot idea...
+    #     log_data = [parser(line) for line in file]
+
+    # print(log_data)
+
+
+def find_logformat_by_nickname(log_format_list, nickname):
+    regex = re.compile(f'"(.+)" {nickname}$')
+    for log_format in log_format_list:
+        match = regex.match(log_format)
+        if match:
+            return match.group(1)
+    return None
 
 
 if __name__ == "__main__":

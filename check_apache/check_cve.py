@@ -78,7 +78,7 @@ def get_cve_list(verbose):
     try:
         # retrieve CVE's in xml form
         response = requests.get(
-            "https://httpd.apache.org/security/vulnerabilities-httpd.xml", timeout=10)
+            "https://httpd.apache.org/security/vulnerabilities-httpd.xml", timeout=5)
     except TimeoutError:
         print("CRITICAL: Could not retrieve CVE's (request timed out)")
         sys.exit(CRITICAL)
