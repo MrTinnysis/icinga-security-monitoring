@@ -111,6 +111,14 @@ def main():
             f"CRITICAL: The configured CustomLog path does not denote a file: {log_file}")
         sys.exit(CRITICAL)
 
+    # create logfile parser using the given format
+    parser = apache_log_parser.make_parser(log_format)
+
+    with open(log_file, "r") as file:
+        log_data = [parser(line) for line in file]
+
+    print(log_data)
+
     # error_log_format = config.get("ErrorLogFormat", vhost=args.vhost)
     # error_log = config.get("ErrorLog", vhost=args.vhost)
 
