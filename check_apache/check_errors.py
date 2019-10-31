@@ -115,7 +115,7 @@ def main():
     parser = apache_log_parser.make_parser(log_format)
 
     with open(log_file, "r") as file:
-        log_data = [parser(line) for line in file]
+        log_data = (parser(line) for line in file)
 
     print(log_data)
 
