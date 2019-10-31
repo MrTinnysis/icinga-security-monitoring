@@ -95,14 +95,10 @@ def main():
 
     # check if nickname/format (format strings are contained in "")
     if match.group(2)[0] == '"' and match.group(2)[-1] == '"':
-        # if '%' in match.group(2):
         # format string (remove "")
-        print("format string")
-        #log_format = match.group(2)[1:-1]
-        log_format = match.group(2).strip('"')
+        log_format = match.group(2)[1:-1]
     else:
         # nickname
-        print("nickname")
         log_format = find_logformat_by_nickname(
             log_format_list, match.group(2))
 
