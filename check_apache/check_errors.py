@@ -93,11 +93,12 @@ def main():
     # set log_file to be the path
     log_file = match.group(1)
 
-    # check if nickname/format (format strings contain '%')
-    if '%' in match.group(2):
-        # format string
+    # check if nickname/format (format strings are contained in "")
+    if match.group(2)[0] == '"' and match.group(2)[-1] == '"':
+        # if '%' in match.group(2):
+        # format string (remove "")
         print("format string")
-        log_format = match.group(2)
+        log_format = match.group(2)[1:-1]
     else:
         # nickname
         print("nickname")
