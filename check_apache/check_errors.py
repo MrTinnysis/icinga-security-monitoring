@@ -101,7 +101,6 @@ def main():
     # retrieve data from logfile
     log_data = _get_log_data(config, args)
 
-    # TODO
     # build filter (date/time + return code)
     start_datetime_iso = _get_start_datetime_iso(args.period)
     returnCodes = ["403", "404"]
@@ -120,8 +119,9 @@ def main():
 
 
 def _get_start_datetime_iso(period):
+    # TODO
     now = datetime.now().isoformat()
-
+    return now
 
 
 def _get_log_data(config, args):
@@ -174,13 +174,13 @@ def _get_log_data(config, args):
 
     log_data = []
     with open(log_file, "r") as file:
-        #log_data = [parser(line) for line in file]
-        for line in file:
-            try:
-                log_data += parser(line)
-            except Exception:
-                print("log entry skipped (format missmatch)")
-                continue
+        log_data = [parser(line) for line in file]
+        # for line in file:
+        #     try:
+        #         log_data += parser(line)
+        #     except Exception:
+        #         print("log entry skipped (format missmatch)")
+        #         continue
 
     return log_data
 
