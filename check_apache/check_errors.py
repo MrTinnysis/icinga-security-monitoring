@@ -92,7 +92,8 @@ def main():
     if args.verbose:
         print(f"start_datetime_iso={start_datetime}")
 
-    parser = ApacheLogParser.from_path(args.path, args.env, args.vhost)
+    # get log parser from config path
+    parser = ApacheLogParser.from_cfg_path(args.path, args.env, args.vhost)
 
     log_data = parser.get_log_data(lambda x: datetime.fromisoformat(
         x["time_received_isoformat"]) >= start_datetime and x["status"] in args.return_codes)
