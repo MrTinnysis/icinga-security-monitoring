@@ -123,7 +123,7 @@ def _get_start_datetime_iso(period):
     match = re.match('(\d{1,2})([dhm])', period)
 
     if not match:
-			raise InvalidTimeframeException()
+		raise InvalidTimeframeException()
 
     # set quantity for given type and all others to 0
     quantity = {"d": 0, "h": 0, "m": 0}
@@ -203,10 +203,10 @@ def _find_logformat_by_nickname(log_format_list, nickname):
             return match.group(1)
     print(f"CRITICAL: Could not find LogFormat {nickname}")
     sys.exit(CRITICAL)
-		
+
 
 class InvalidTimeframeException(Exception):
-	pass
+    pass
 
 
 if __name__ == "__main__":
