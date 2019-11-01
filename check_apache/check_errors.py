@@ -10,7 +10,7 @@ import re
 import apache_log_parser
 
 from ApacheConfig import ApacheConfig
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 # monitoring plugin return codes
@@ -68,7 +68,7 @@ def parse_args():
     )
     argumentParser.add_argument(
         '-u', '--user', nargs="?", const=True, default=False,
-        help='map log entries to ips'
+        help='correlate log entries to users (ips)'
     )
 
     return argumentParser.parse_args()
@@ -103,11 +103,10 @@ def main():
 
     # build filter (date/time + return code)
     start_datetime_iso = _get_start_datetime_iso(args.period)
-    returnCodes = ["403", "404"]
 
     # apply filter
     log_data = [entry for entry in log_data if entry["time_received_isoformat"]
-                < start_datetime_iso and entry["status"] in returnCodes]
+                < start_datetime_iso and entry["status"] in args.return_codes]
 
     if args.verbose:
         print(f"#log_entries={len(log_data)}")
@@ -118,9 +117,22 @@ def main():
 
 
 def _get_start_datetime_iso(period):
-    # TODO
-    now = datetime.now().isoformat()
-    return now
+    # get current date
+    now = datetime.now()
+    # match period -> extract quantity and type
+    match = re.match('(\d{1,2})([dhm])', period)
+
+    if not match:
+			raise InvalidTimeframeException()
+
+    # set quantity for given type and all others to 0
+    quantity = {"d": 0, "h": 0, "m": 0}
+    quantity[match.group(2)] = max(int(match.grou(1)), 1)
+
+    # calculate start date
+    now -= timedelta(days=quantity["d"], hours=quantity["h"], minutes=quantity["m"])
+
+    return now.isoformat()
 
 
 def _get_log_data(config, args):
@@ -191,6 +203,10 @@ def _find_logformat_by_nickname(log_format_list, nickname):
             return match.group(1)
     print(f"CRITICAL: Could not find LogFormat {nickname}")
     sys.exit(CRITICAL)
+		
+
+class InvalidTimeframeException(Exception):
+	pass
 
 
 if __name__ == "__main__":
