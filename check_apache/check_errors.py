@@ -104,8 +104,8 @@ def main():
         print(f"start_datetime_iso={start_datetime_iso}")
 
     # # apply filter
-    log_data = [entry for entry in log_data if entry["time_received_isoformat"]
-                <= start_datetime_iso and entry["status"] in args.return_codes]
+    log_data = [entry for entry in log_data if datetime.fromisoformat(entry["time_received_isoformat"])
+                >= start_datetime_iso and entry["status"] in args.return_codes]
 
     total_count = len(log_data)
 
@@ -115,7 +115,6 @@ def main():
     returnCode = OK
 
     # count entries per ip
-    
 
     # compare to threshold
 
@@ -133,13 +132,11 @@ def _get_start_datetime_iso(period):
     quantity = {"d": 0, "h": 0, "m": 0}
     quantity[match.group(2)] = max(int(match.group(1)), 1)
 
-    print(quantity)
-
     # calculate start date
-    now -= timedelta(days=quantity["d"], hours=quantity["h"], minutes=quantity["m"])
-    now.microsecond = 0
+    now -= timedelta(days=quantity["d"],
+                     hours=quantity["h"], minutes=quantity["m"])
 
-    return now.isoformat()
+    return now
 
 
 def _get_log_data(config, args):
