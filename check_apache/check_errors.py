@@ -98,14 +98,14 @@ def main():
     log_data = _get_log_data(config, args)
 
     # build filter (date/time + return code)
-    start_datetime_iso = _get_start_datetime_iso(args.period)
+    start_datetime = _get_start_datetime(args.period)
 
     if args.verbose:
-        print(f"start_datetime_iso={start_datetime_iso}")
+        print(f"start_datetime_iso={start_datetime}")
 
     # # apply filter
     log_data = [entry for entry in log_data if datetime.fromisoformat(entry["time_received_isoformat"])
-                >= start_datetime_iso and entry["status"] in args.return_codes]
+                >= start_datetime and entry["status"] in args.return_codes]
 
     total_count = len(log_data)
 
@@ -115,11 +115,12 @@ def main():
     returnCode = OK
 
     # count entries per ip
+    print(log_data)
 
     # compare to threshold
 
 
-def _get_start_datetime_iso(period):
+def _get_start_datetime(period):
     # get current date
     now = datetime.now()
     # match period -> extract quantity and type
