@@ -107,7 +107,6 @@ def main():
     total_count = len(log_data)
 
     if args.verbose:
-        print(log_data)
         print(f"total_count={total_count}")
 
     returnCode = OK
@@ -130,6 +129,8 @@ def _get_start_datetime_iso(period):
     # set quantity for given type and all others to 0
     quantity = {"d": 0, "h": 0, "m": 0}
     quantity[match.group(2)] = max(int(match.group(1)), 1)
+
+    print(quantity)
 
     # calculate start date
     now -= timedelta(days=quantity["d"], hours=quantity["h"], minutes=quantity["m"])
