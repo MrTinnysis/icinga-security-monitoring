@@ -66,10 +66,6 @@ def parse_args():
         "-rc", "--return-codes", nargs="+", default=["403", "404"],
         help="specify which return codes should be monitored"
     )
-    argumentParser.add_argument(
-        '-u', '--user', nargs="?", const=True, default=False,
-        help='correlate log entries to users (ips)'
-    )
 
     return argumentParser.parse_args()
 
@@ -105,13 +101,18 @@ def main():
     start_datetime_iso = _get_start_datetime_iso(args.period)
 
     # apply filter
-    log_data = [entry for entry in log_data if entry["time_received_isoformat"]
-                < start_datetime_iso and entry["status"] in args.return_codes]
+    # log_data = [entry for entry in log_data if entry["time_received_isoformat"]
+    #             < start_datetime_iso and entry["status"] in args.return_codes]
+
+    total_count = len(log_data)
 
     if args.verbose:
-        print(f"#log_entries={len(log_data)}")
+        print(f"total_count={total_count}")
 
-    # count entries (total and per ip)
+    returnCode = OK
+
+    # count entries per ip
+    
 
     # compare to threshold
 
