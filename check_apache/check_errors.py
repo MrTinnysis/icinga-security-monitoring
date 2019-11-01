@@ -11,6 +11,7 @@ import apache_log_parser
 
 from ApacheConfig import ApacheConfig
 from datetime import datetime, timedelta
+from itertools import groupby
 
 
 # monitoring plugin return codes
@@ -115,7 +116,13 @@ def main():
     returnCode = OK
 
     # count entries per ip
-    print(log_data)
+    ip_list = groupby(sorted(log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
+
+    print(ip_list)
+
+    ip_count = [len(x) for x in ip_list]
+
+    print(ip_count)
 
     # compare to threshold
 
