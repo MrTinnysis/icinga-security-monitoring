@@ -101,8 +101,8 @@ def main():
     start_datetime_iso = _get_start_datetime_iso(args.period)
 
     # apply filter
-    # log_data = [entry for entry in log_data if entry["time_received_isoformat"]
-    #             < start_datetime_iso and entry["status"] in args.return_codes]
+    log_data = [entry for entry in log_data if entry["time_received_isoformat"]
+                < start_datetime_iso and entry["status"] in args.return_codes]
 
     total_count = len(log_data)
 
