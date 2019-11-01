@@ -77,6 +77,7 @@ def main():
     if args.verbose:
         print(args)
 
+    # check file paths
     if not os.path.isfile(args.path):
         print(f"CRITICAL: {args.path} does not denote a file!")
         sys.exit(CRITICAL)
@@ -85,16 +86,7 @@ def main():
         print(f"CRITICAL: {args.env} does not denote a file!")
         sys.exit(CRITICAL)
 
-    # load apache configuration
-    # config = ApacheConfig(args.path, env_var_file=args.env)
-
-    # if args.verbose:
-    #     print(config)
-
-    # # retrieve data from logfile
-    # log_data = _get_log_data(config, args)
-
-        # build filter (date/time + return code)
+    # get start datetime from configured period
     start_datetime = _get_start_datetime(args.period)
 
     if args.verbose:
