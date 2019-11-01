@@ -118,7 +118,8 @@ def main():
     # count entries per ip
     ip_list = groupby(sorted(log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
 
-    print(ip_list[0])
+    for x in ip_list:
+        print(x)
 
     # ip_count = [(x["remote_host"], len(x)) for x in ip_list]
 
