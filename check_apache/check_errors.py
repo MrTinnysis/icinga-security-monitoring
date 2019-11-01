@@ -5,11 +5,7 @@ import sys
 import os
 import re
 
-# https://github.com/rory/apache-log-parser
-# https://pypi.org/project/apache-log-parser/1.7.0/
-import apache_log_parser
-
-from ApacheConfig import ApacheConfig
+from ApacheLogs import ApacheLogParser
 from datetime import datetime, timedelta
 from itertools import groupby
 
@@ -90,23 +86,24 @@ def main():
         sys.exit(CRITICAL)
 
     # load apache configuration
-    config = ApacheConfig(args.path, env_var_file=args.env)
+    # config = ApacheConfig(args.path, env_var_file=args.env)
 
-    if args.verbose:
-        print(config)
+    # if args.verbose:
+    #     print(config)
 
-    # retrieve data from logfile
-    log_data = _get_log_data(config, args)
+    # # retrieve data from logfile
+    # log_data = _get_log_data(config, args)
 
-    # build filter (date/time + return code)
+        # build filter (date/time + return code)
     start_datetime = _get_start_datetime(args.period)
 
     if args.verbose:
         print(f"start_datetime_iso={start_datetime}")
 
-    # # apply filter
-    log_data = [entry for entry in log_data if datetime.fromisoformat(entry["time_received_isoformat"])
-                >= start_datetime and entry["status"] in args.return_codes]
+    parser = ApacheLogParser.from_path(args.path, args.env, args.vhost)
+
+    log_data = parser.get_log_data(lambda x: datetime.fromisoformat(
+        x["time_received_isoformat"]) >= start_datetime and x["status"] in args.return_codes)
 
     total_count = len(log_data)
 
@@ -116,7 +113,8 @@ def main():
     returnCode = OK
 
     # count entries per ip
-    rhost_list = groupby(sorted(log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
+    rhost_list = groupby(sorted(
+        log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
 
     returnCode = OK
 
@@ -132,6 +130,10 @@ def main():
             returnCode = max(returnCode, CRITICAL)
 
     sys.exit(returnCode)
+
+
+class InvalidTimeframeException(Exception):
+    pass
 
 
 def _get_start_datetime(period):
@@ -152,80 +154,6 @@ def _get_start_datetime(period):
                      hours=quantity["h"], minutes=quantity["m"])
 
     return now
-
-
-def _get_log_data(config, args):
-    log_format_list = config.get("LogFormat", vhost=args.vhost)
-    custom_log = config.get("CustomLog", vhost=args.vhost)
-
-    # convert format to list if only one format is configured
-    if type(log_format_list) != list:
-        log_format_list = [log_format_list]
-
-    if args.verbose:
-        print(f"log_format_list={log_format_list}")
-        print(f"custom_log={custom_log}")
-
-    if not log_format_list:
-        print("CRITICAL: Not log format specified")
-        sys.exit(CRITICAL)
-
-    # CustomLog definition consists of path and either "nickname" or format string
-    match = re.match("(.+?) (.+)", custom_log)
-
-    # Check format
-    if not match:
-        print(f"CRITICAL: Invalid CustomLog configuration {custom_log}")
-        sys.exit(CRITICAL)
-
-    # set log_file to be the path
-    log_file = match.group(1)
-
-    # check if nickname/format (format strings are contained in "")
-    if match.group(2)[0] == '"' and match.group(2)[-1] == '"':
-        # format string (remove "")
-        log_format = match.group(2)[1:-1]
-    else:
-        # nickname
-        log_format = _find_logformat_by_nickname(
-            log_format_list, match.group(2))
-
-    if args.verbose:
-        print(f"log_file={log_file}")
-        print(f"log_format={log_format}")
-
-    if not os.path.isfile(log_file):
-        print(
-            f"CRITICAL: The configured CustomLog path does not denote a file: {log_file}")
-        sys.exit(CRITICAL)
-
-    # create logfile parser using the given format
-    parser = apache_log_parser.make_parser(log_format)
-
-    log_data = []
-    with open(log_file, "r") as file:
-        for line in file:
-            try:
-                log_data += [parser(line)]
-            except apache_log_parser.LineDoesntMatchException:
-                print("log entry skipped (format missmatch)")
-                continue
-
-    return log_data
-
-
-def _find_logformat_by_nickname(log_format_list, nickname):
-    regex = re.compile(f'"(.+)" {nickname}$')
-    for log_format in log_format_list:
-        match = regex.match(log_format)
-        if match:
-            return match.group(1)
-    print(f"CRITICAL: Could not find LogFormat {nickname}")
-    sys.exit(CRITICAL)
-
-
-class InvalidTimeframeException(Exception):
-    pass
 
 
 if __name__ == "__main__":

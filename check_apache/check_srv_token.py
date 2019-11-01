@@ -24,7 +24,7 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-c", "--config", default="/etc/apache2/apache2.conf",
+        "-p", "--path", default="/etc/apache2/apache2.conf",
         help="path to the configuration file"
     )
     argumentParser.add_argument(
@@ -49,15 +49,15 @@ def main():
     if args.verbose:
         print(args)
 
-    if not os.path.isfile(args.config):
-        print(f"CRITICAL: {args.config} does not denote a file!")
+    if not os.path.isfile(args.path):
+        print(f"CRITICAL: {args.path} does not denote a file!")
         sys.exit(CRITICAL)
 
     if args.env and not os.path.isfile(args.env):
         print(f"CRITICAL: {args.env} does not denote a file!")
         sys.exit(CRITICAL)
 
-    config = ApacheConfig(args.config, env_var_file=args.env)
+    config = ApacheConfig(args.path, env_var_file=args.env)
 
     server_sig = config.get("ServerSignature", args.vhost)
     server_tokens = config.get("ServerTokens", args.vhost)
