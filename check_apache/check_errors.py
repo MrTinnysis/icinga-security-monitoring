@@ -107,9 +107,9 @@ def main():
     log_data = [entry for entry in log_data if entry["time_received_isoformat"]
                 < now and entry["status"] in returnCodes]
 
-    print(log_data)
+    if args.verbose:
+        print(f"#log_entries={len(log_data)}")
 
-    # apply filter
 
     # count entries (total and per ip)
 
