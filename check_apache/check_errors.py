@@ -10,6 +10,7 @@ import re
 import apache_log_parser
 
 from ApacheConfig import ApacheConfig
+from datetime import datetime
 
 
 # monitoring plugin return codes
@@ -17,6 +18,15 @@ OK = 0
 WARNING = 1
 CRITICAL = 2
 UNKNOWN = 3
+
+# define period
+
+
+def period(string):
+    if not re.search("^\d{1,2}[dhm]$", string):
+        msg = "%r is not a valid period" % string
+        raise argparse.ArgumentTypeError(msg)
+    return string
 
 
 def parse_args():
@@ -29,7 +39,7 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-c", "--config", default="/etc/apache2/apache2.conf",
+        "-p", "--path", default="/etc/apache2/apache2.conf",
         help="specify the config file that should be loaded (used to locate corresponding log files)"
     )
     argumentParser.add_argument(
@@ -39,6 +49,22 @@ def parse_args():
     argumentParser.add_argument(
         "-vh", "--vhost", default=None,
         help="specify the virtual host whose config should be loaded (if any)"
+    )
+    argumentParser.add_argument(
+        '--period', metavar='NUMBER', default='1h', type=period,
+        help='check log of last period (default: "1h", format 1-99 m/h/d)'
+    )
+    argumentParser.add_argument(
+        '-w', '--warning', metavar='NUMBER', type=int, default=1,
+        help='return warning if number of found log entries is above'
+    )
+    argumentParser.add_argument(
+        '-c', '--critical', metavar='NUMBER', type=int, default=2,
+        help='return critical if number of found logs is above'
+    )
+    argumentParser.add_argument(
+        "-rc", "--return-codes", nargs="+", default=["403", "404"],
+        help="specify which return codes should be monitored"
     )
 
     return argumentParser.parse_args()
@@ -54,8 +80,8 @@ def main():
     if args.verbose:
         print(args)
 
-    if not os.path.isfile(args.config):
-        print(f"CRITICAL: {args.config} does not denote a file!")
+    if not os.path.isfile(args.path):
+        print(f"CRITICAL: {args.path} does not denote a file!")
         sys.exit(CRITICAL)
 
     if args.env and not os.path.isfile(args.env):
@@ -63,7 +89,7 @@ def main():
         sys.exit(CRITICAL)
 
     # load apache configuration
-    config = ApacheConfig(args.config, env_var_file=args.env)
+    config = ApacheConfig(args.path, env_var_file=args.env)
 
     if args.verbose:
         print(config)
@@ -73,10 +99,25 @@ def main():
 
     # TODO
     # build filter (date/time + return code)
+    start_datetime = _get_start_datetime(args.period)
+    returnCodes = ["403", "404"]
+    now = datetime.now().isoformat()
+
+    # apply filter
+    log_data = [entry for entry in log_data if entry["time_received_isoformat"]
+                < now and entry["status"] in returnCodes]
+
+    print(log_data)
+
+    # apply filter
 
     # count entries (total and per ip)
 
     # compare to threshold
+
+
+def _get_start_datetime(period):
+    pass
 
 
 def _get_log_data(config, args):
