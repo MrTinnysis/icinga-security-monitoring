@@ -123,7 +123,7 @@ def main():
     for rhost in rhost_list:
         (ip, entries) = rhost
         size = sum(1 for _ in entries)
-        print(f"| {ip}: {size}")
+        print(f"|{ip}={size};{args.warning};{args.critical}")
 
         if size >= args.warning:
             returnCode = max(returnCode, WARNING)
