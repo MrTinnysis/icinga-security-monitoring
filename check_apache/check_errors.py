@@ -66,6 +66,10 @@ def parse_args():
         "-rc", "--return-codes", nargs="+", default=["403", "404"],
         help="specify which return codes should be monitored"
     )
+    argumentParser.add_argument(
+        '-u', '--user', nargs="?", const=True, default=False,
+        help='map log entries to ips'
+    )
 
     return argumentParser.parse_args()
 
@@ -99,13 +103,12 @@ def main():
 
     # TODO
     # build filter (date/time + return code)
-    start_datetime = _get_start_datetime(args.period)
+    start_datetime_iso = _get_start_datetime_iso(args.period)
     returnCodes = ["403", "404"]
-    now = datetime.now().isoformat()
 
     # apply filter
     log_data = [entry for entry in log_data if entry["time_received_isoformat"]
-                < now and entry["status"] in returnCodes]
+                < start_datetime_iso and entry["status"] in returnCodes]
 
     if args.verbose:
         print(f"#log_entries={len(log_data)}")
@@ -116,8 +119,9 @@ def main():
     # compare to threshold
 
 
-def _get_start_datetime(period):
-    pass
+def _get_start_datetime_iso(period):
+    now = datetime.now().isoformat()
+
 
 
 def _get_log_data(config, args):
@@ -168,8 +172,15 @@ def _get_log_data(config, args):
     # create logfile parser using the given format
     parser = apache_log_parser.make_parser(log_format)
 
+    log_data = []
     with open(log_file, "r") as file:
-        log_data = [parser(line) for line in file]
+        #log_data = [parser(line) for line in file]
+        for line in file:
+            try:
+                log_data += parser(line)
+            except Exception:
+                print("log entry skipped (format missmatch)")
+                continue
 
     return log_data
 
