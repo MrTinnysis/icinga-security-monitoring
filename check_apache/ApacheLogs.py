@@ -16,7 +16,7 @@ class ApacheLogParserException(Exception):
 
 class ApacheLogParser:
 
-    def __init__(self:ApacheLogParser, config:ApacheConfig, vhost:str=None) -> None:
+    def __init__(self, config:ApacheConfig, vhost:str=None) -> None:
         log_format_list = config.get("LogFormat", vhost=vhost)
         custom_log = config.get("CustomLog", vhost=vhost)
 
@@ -55,11 +55,11 @@ class ApacheLogParser:
         self.parser = apache_log_parser.make_parser(log_format)
 
     @classmethod
-    def from_path(cls, path, env=None, vhost=None):
+    def from_path(cls, path:str, env:str=None, vhost:str=None) -> ApacheLogParser:
         config = ApacheConfig(path, env_var_file=env)
         return cls(config, vhost)
 
-    def get_log_data(self, filter_func=None, skip_errors=True):
+    def get_log_data(self, filter_func:function=None, skip_errors:bool=True) -> List[Dict]:
         log_data = []
         with open(self.log_file, "r") as file:
             for line in file:
@@ -77,7 +77,7 @@ class ApacheLogParser:
         else:
             return [entry for entry in log_data if filter_func(entry)]
 
-    def _find_logformat_by_nickname(self, log_format_list, nickname):
+    def _find_logformat_by_nickname(self, log_format_list:List[str], nickname:str) -> str:
         regex = re.compile(f'"(.+)" {nickname}$')
         for log_format in log_format_list:
             match = regex.match(log_format)
