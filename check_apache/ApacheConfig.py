@@ -1,6 +1,7 @@
 
 import os
 import re
+import typing
 
 from pprint import pformat
 
@@ -14,11 +15,11 @@ class ApacheConfigException(Exception):
 
 class ApacheConfig:
 
-    def __init__(self, path, options=None, env_var_file=None):
-        self.path = path
-        self.env_var_file = env_var_file
-        self.env_vars = None
-        self.options = options if options != None else {
+    def __init__(self, path:str, options:Dict=None, env_var_file:str=None) -> None:
+        self.path:str = path
+        self.env_var_file:str = env_var_file
+        self.env_vars:Dict= None
+        self.options:Dict = options if options != None else {
             "useapacheinclude": True,
             "includerelative": True,
             "includedirectories": True,
@@ -27,7 +28,7 @@ class ApacheConfig:
 
         self.config = self._load_cfg()
 
-    def get(self, key, vhost=None, default=None):
+    def get(self, key:str, vhost:str=None, default:Any=None) -> Any:
         value = self.config.get(key, default)
 
         if vhost:
@@ -42,7 +43,7 @@ class ApacheConfig:
 
         return value
 
-    def get_vhost_config(self, vhost_name):
+    def get_vhost_config(self, vhost_name:str) -> Dict:
         vhosts = self.config.get("VirtualHost")
 
         if not vhosts:
@@ -55,7 +56,7 @@ class ApacheConfig:
     def reload(self):
         self.config = self._load_cfg()
 
-    def _process_vars(self, value):
+    def _process_vars(self, value:Any) -> Any:
         if type(value) == str:
             # check if the string contains a placeholder
             match = re.match("\${(\w+?)}", value)
@@ -79,7 +80,7 @@ class ApacheConfig:
 
         return value
 
-    def _load_cfg(self):
+    def _load_cfg(self) -> Dict:
         with apacheconfig.make_loader(**self.options) as loader:
             config = loader.load(self.path)
 
@@ -90,7 +91,7 @@ class ApacheConfig:
 
         return config
 
-    def _parse_env_vars(self):
+    def _parse_env_vars(self) -> Dict:
         env_vars = {}
         regex = re.compile("^export (.*)=(.*)$")
         with open(self.env_var_file, "r") as file:
@@ -104,7 +105,7 @@ class ApacheConfig:
 
         return env_vars
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.env_vars:
             return f"ENV_VARS: {pformat(self.env_vars)}\nCONFIG: {pformat(self.config)}"
         else:

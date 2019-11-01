@@ -55,7 +55,7 @@ class ApacheLogParser:
         self.parser = apache_log_parser.make_parser(log_format)
 
     @classmethod
-    def from_path(cls, path:str, env:str=None, vhost:str=None) -> ApacheLogParser:
+    def from_path(cls, path:str, env:str=None, vhost:str=None):
         config = ApacheConfig(path, env_var_file=env)
         return cls(config, vhost)
 
