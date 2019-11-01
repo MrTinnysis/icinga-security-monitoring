@@ -122,12 +122,13 @@ def main():
 
     for rhost in rhost_list:
         (ip, entries) = rhost
-        print(f"| {ip}: {len(entries)}")
+        size = sum(1 for _ in entries)
+        print(f"| {ip}: {size}")
 
-        if len(entries) >= args.warning:
+        if size >= args.warning:
             returnCode = max(returnCode, WARNING)
 
-        if len(entries) >= args.critical:
+        if size >= args.critical:
             returnCode = max(returnCode, CRITICAL)
 
     sys.exit(returnCode)
