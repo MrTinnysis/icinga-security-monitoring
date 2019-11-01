@@ -116,16 +116,21 @@ def main():
     returnCode = OK
 
     # count entries per ip
-    ip_list = groupby(sorted(log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
+    rhost_list = groupby(sorted(log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
 
-    for x in ip_list:
-        print(x)
+    returnCode = OK
 
-    # ip_count = [(x["remote_host"], len(x)) for x in ip_list]
+    for rhost in rhost_list:
+        (ip, entries) = rhost
+        print(f"| {ip}: {len(entries)}")
 
-    # print(ip_count)
+        if len(entries) >= args.warning:
+            returnCode = max(returnCode, WARNING)
 
-    # compare to threshold
+        if len(entries) >= args.critical:
+            returnCode = max(returnCode, CRITICAL)
+
+    sys.exit(returnCode)
 
 
 def _get_start_datetime(period):
