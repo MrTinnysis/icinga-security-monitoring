@@ -16,7 +16,7 @@ class ApacheLogParserException(Exception):
 
 class ApacheLogParser:
 
-    def __init__(self, config:ApacheConfig, vhost:str=None) -> ApacheLogParser:
+    def __init__(self:ApacheLogParser, config:ApacheConfig, vhost:str=None) -> None:
         log_format_list = config.get("LogFormat", vhost=vhost)
         custom_log = config.get("CustomLog", vhost=vhost)
 
