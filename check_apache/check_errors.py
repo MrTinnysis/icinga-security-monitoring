@@ -4,14 +4,13 @@ import argparse
 import sys
 import os
 import re
-import datetime as dt
 
 # https://github.com/rory/apache-log-parser
 # https://pypi.org/project/apache-log-parser/1.7.0/
 import apache_log_parser
 
 from ApacheConfig import ApacheConfig
-#from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 
 
 # monitoring plugin return codes
@@ -105,7 +104,7 @@ def main():
         print(f"start_datetime_iso={start_datetime_iso}")
 
     # # apply filter
-    log_data = [entry for entry in log_data if dt.fromisoformat(entry["time_received_isoformat"])
+    log_data = [entry for entry in log_data if datetime.fromisoformat(entry["time_received_isoformat"])
                 >= start_datetime_iso and entry["status"] in args.return_codes]
 
     total_count = len(log_data)
@@ -122,7 +121,7 @@ def main():
 
 def _get_start_datetime_iso(period):
     # get current date
-    now = dt.datetime.now()
+    now = datetime.now()
     # match period -> extract quantity and type
     match = re.match('(\d{1,2})([dhm])', period)
 
@@ -134,7 +133,7 @@ def _get_start_datetime_iso(period):
     quantity[match.group(2)] = max(int(match.group(1)), 1)
 
     # calculate start date
-    now -= dt.timedelta(days=quantity["d"],
+    now -= timedelta(days=quantity["d"],
                      hours=quantity["h"], minutes=quantity["m"])
 
     return now
