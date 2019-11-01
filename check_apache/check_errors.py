@@ -121,13 +121,13 @@ def _get_start_datetime_iso(period):
     now = datetime.now()
     # match period -> extract quantity and type
     match = re.match('(\d{1,2})([dhm])', period)
-    
+
     if not match:
         raise InvalidTimeframeException()
 
     # set quantity for given type and all others to 0
     quantity = {"d": 0, "h": 0, "m": 0}
-    quantity[match.group(2)] = max(int(match.grou(1)), 1)
+    quantity[match.group(2)] = max(int(match.group(1)), 1)
 
     # calculate start date
     now -= timedelta(days=quantity["d"], hours=quantity["h"], minutes=quantity["m"])
