@@ -189,7 +189,7 @@ def _get_log_data(config, args):
     with open(log_file, "r") as file:
         for line in file:
             try:
-                log_data += parser(line)
+                log_data += [parser(line)]
             except apache_log_parser.LineDoesntMatchException:
                 print("log entry skipped (format missmatch)")
                 continue
