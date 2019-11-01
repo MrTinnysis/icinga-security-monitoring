@@ -137,6 +137,7 @@ def _get_start_datetime_iso(period):
 
     # calculate start date
     now -= timedelta(days=quantity["d"], hours=quantity["h"], minutes=quantity["m"])
+    now.microsecond = 0
 
     return now.isoformat()
 
