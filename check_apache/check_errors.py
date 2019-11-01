@@ -112,7 +112,6 @@ def main():
     if args.verbose:
         print(f"#log_entries={len(log_data)}")
 
-
     # count entries (total and per ip)
 
     # compare to threshold
@@ -174,13 +173,12 @@ def _get_log_data(config, args):
 
     log_data = []
     with open(log_file, "r") as file:
-        log_data = [parser(line) for line in file]
-        # for line in file:
-        #     try:
-        #         log_data += parser(line)
-        #     except Exception:
-        #         print("log entry skipped (format missmatch)")
-        #         continue
+        for line in file:
+            try:
+                log_data += parser(line)
+            except apache_log_parser.LineDoesntMatchException:
+                print("log entry skipped (format missmatch)")
+                continue
 
     return log_data
 
