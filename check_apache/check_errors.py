@@ -107,6 +107,7 @@ def main():
     total_count = len(log_data)
 
     if args.verbose:
+        print(log_data)
         print(f"total_count={total_count}")
 
     returnCode = OK
