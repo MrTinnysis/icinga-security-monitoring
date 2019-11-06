@@ -6,7 +6,9 @@ from FileSystemCheck import FSCheck
 
 def main():
     fs_check = FSCheck()
-    fs_check.exec()
+
+    with open("tmp", "w+") as file:
+        fs_check.exec(file)
 
 
 if __name__ == "__main__":
