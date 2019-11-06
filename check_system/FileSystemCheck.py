@@ -33,7 +33,7 @@ class FSCheck:
 
     def _is_running(self):
         # check if there's a pid file in the store_path
-        return os.path.isfile(os.path.join(self.store_path, self.pid_file_name))
+        return os.path.exists(os.path.join(self.store_path, self.pid_file_name))
 
     def _create_pid_file(self):
         with open(os.path.join(self.store_path, self.pid_file_name), "w+") as file:
