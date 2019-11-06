@@ -23,8 +23,11 @@ class FSCheck:
         pid = os.fork()
 
         if pid == 0:
+            print("Child Running...")
             # child process -> execute actual fs check
             self._internal_exec(output_file_path)
+        else:
+            print("Parent terminating...")
         # proc = Process(target=self._internal_exec, args=(self, output_file))
         # proc.start()
 
