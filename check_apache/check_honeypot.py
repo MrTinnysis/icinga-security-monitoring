@@ -85,13 +85,11 @@ def main():
     # get log parser from config path
     parser = ApacheLogParser.from_cfg_path(args.path, args.env, args.vhost)
 
-    log_data = parser.get_log_data(lambda x: 
-        datetime.fromisoformat(x["time_received_isoformat"]) >= start_datetime and
-        x["status"] == "404" and
-        x["request_url_path"] == args.honeypot
-    )
-
-    print(log_data)
+    log_data = parser.get_log_data(lambda x:
+                                   datetime.fromisoformat(x["time_received_isoformat"]) >= start_datetime and
+                                   x["status"] == "404" and
+                                   x["request_url_path"] == args.honeypot
+                                   )
 
     if args.verbose:
         print(f"total_count={len(log_data)}")
