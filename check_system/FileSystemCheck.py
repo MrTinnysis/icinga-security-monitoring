@@ -34,7 +34,7 @@ class FSCheck:
 
     def _create_pid_file(self):
         with open(os.path.join(self.store_path, self.pid_file_name), "w+") as file:
-            file.write(os.getpid())
+            file.write(str(os.getpid()))
 
     def _delete_pid_file(self):
         os.remove(os.path.join(self.store_path, self.pid_file_name))
