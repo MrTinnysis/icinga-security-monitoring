@@ -104,15 +104,14 @@ def main():
     returnCode = OK
 
     for rhost in rhost_list:
+        # destructure tuple
         (ip, entries) = rhost
+        # get iterator length (is there no better way??)
         size = sum(1 for _ in entries)
-        print(f"|{ip}={size};{args.warning};{args.critical}")
+        print(f"|{ip}={size}")
 
-        if size >= args.warning:
+        if size >= 1:
             returnCode = max(returnCode, WARNING)
-
-        if size >= args.critical:
-            returnCode = max(returnCode, CRITICAL)
 
     sys.exit(returnCode)
 
