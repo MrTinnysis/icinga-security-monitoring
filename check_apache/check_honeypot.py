@@ -16,8 +16,6 @@ WARNING = 1
 CRITICAL = 2
 UNKNOWN = 3
 
-# define period
-
 
 def period(string):
     if not re.search("^\d{1,2}[dhm]$", string):
@@ -48,20 +46,12 @@ def parse_args():
         help="specify the virtual host whose config should be loaded (if any)"
     )
     argumentParser.add_argument(
+        "-hp", "--honeypot", required=True,
+        help="specify the honeypot directory"
+    )
+    argumentParser.add_argument(
         '--period', metavar='NUMBER', default='1h', type=period,
         help='check log of last period (default: "1h", format 1-99 m/h/d)'
-    )
-    argumentParser.add_argument(
-        '-w', '--warning', metavar='NUMBER', type=int, default=1,
-        help='return warning if number of found log entries is above'
-    )
-    argumentParser.add_argument(
-        '-c', '--critical', metavar='NUMBER', type=int, default=2,
-        help='return critical if number of found logs is above'
-    )
-    argumentParser.add_argument(
-        "-rc", "--return-codes", nargs="+", default=["403", "404"],
-        help="specify which return codes should be monitored"
     )
 
     return argumentParser.parse_args()
@@ -96,18 +86,20 @@ def main():
     parser = ApacheLogParser.from_cfg_path(args.path, args.env, args.vhost)
 
     log_data = parser.get_log_data(lambda x: datetime.fromisoformat(
-        x["time_received_isoformat"]) >= start_datetime and x["status"] in args.return_codes)
+        x["time_received_isoformat"]) >= start_datetime and x["status"] == "404")
+
+    print(log_data)
 
     if args.verbose:
         print(f"total_count={len(log_data)}")
 
     returnCode = OK
 
-    def remote_host(el): return el["remote_host"]
+    def remote_host(x): return x["remote_host"]
 
     # count entries per ip
     rhost_list = groupby(sorted(
-        log_data, key=remote_host), key=remote_host)
+        log_data, key=lambda x: x["remote_host"]), key=lambda x: x["remote_host"])
 
     returnCode = OK
 
