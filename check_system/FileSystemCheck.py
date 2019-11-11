@@ -2,6 +2,7 @@
 import os
 import signal
 import stat
+import json
 
 from datetime import date
 
@@ -22,7 +23,7 @@ class FSCheck:
         signal.signal(signal.SIGTERM, self._delete_pid_file)
 
     @classmethod
-    def exec(cls, output_file, blacklist=None, scan_path="/", store_path="/tmp"):
+    def exec(cls, output_file, blacklist=[], scan_path="/", store_path="/tmp"):
         if not blacklist:
             #blacklist = ["/proc", "/run", "/sys", "/snap", "/var/lib/lxcfs"]
             blacklist = []
@@ -59,8 +60,12 @@ class FSCheck:
 
         # perform actual fs check here
         try:
-            # add current iso date as first line
-            data = [date.today().isoformat()]
+            data = {
+                "DATE": date.today().isoformat(),
+                "SUID": [],
+                "SGID": [],
+                "WWRT": []
+            }
 
             for root, dirs, files in os.walk(self.scan_path):
                 # check blacklisted directories
@@ -69,43 +74,32 @@ class FSCheck:
                         dirs.remove(name)
 
                 for name in files:
-                    data += self._check_file_stats(
-                        os.path.join(root, name))
+                    self._check_file_stats(os.path.join(root, name), data)
 
             # create/override output file
             with open(output_file_path, "w+") as file:
-                for line in data:
-                    file.write(line + "\n")
+                json.dump(data, file)
+
         finally:
             # delete pid file
             self._delete_pid_file()
 
-    def _check_file_stats(self, file):
-        # check if file is indeed a file (and not a link or anything else)
-        if not os.path.isfile(file):
-            return []
+    def _check_file_stats(self, file, data_out):
+        # get file stats (without following links)
+        stats = os.stat(file, follow_symlinks=False)
 
-        stats = os.stat(file)
-        data = []
+        # check if "file" denotes a regular file
+        if not stat.S_ISREG(stats.st_mode):
+            return
 
-        if stats.st_mode & stat.S_ISUID and stats.st_mode & stat.S_IWOTH:
-            # SUID flag set and world writable
-            data += ["SUID:" + file]
+        if stats.st_mode & stat.S_ISUID != 0:
+            # regular file with suid flag set
+            data_out["SUID"] += file
 
-        if stats.st_mode & stat.S_ISGID and stats.st_mode & stat.S_IWOTH:
-            # SGID flag set and world writable
-            data += ["SGID:" + file]
+        if stats.st_mode & stat.S_ISGID != 0:
+            # regular file with sgid flag set
+            data_out["SGID"] += file
 
-        # if stats.st_mode & stat.S_ISUID:
-        #     # SUID Flag set
-        #     data += ["SUID:" + file]
-
-        # if stats.st_mode & stat.S_ISGID:
-        #     # SGID Flag set
-        #     data += ["SGID:" + file]
-
-        # if stats.st_mode & stat.S_IWOTH:
-        #     # world writable file
-        #     data += ["WWRT:" + file]
-
-        return data
+        if stats.st_mode & stat.S_IWOTH:
+            # world writable file
+            data_out["WWRT"] += file
