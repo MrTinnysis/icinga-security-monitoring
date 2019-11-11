@@ -22,7 +22,10 @@ class FSCheck:
         signal.signal(signal.SIGTERM, self._delete_pid_file)
 
     @classmethod
-    def exec(cls, output_file, blacklist=["/proc", "/run", "/sys"], scan_path="/", store_path="/tmp"):
+    def exec(cls, output_file, blacklist=None, scan_path="/", store_path="/tmp"):
+        if not blacklist:
+            blacklist = ["/proc", "/run", "/sys", "/snap", "/var/lib/lxcfs"]
+
         # create instance
         fs_check = cls(blacklist, scan_path, store_path)
 
