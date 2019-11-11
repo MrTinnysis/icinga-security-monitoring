@@ -73,7 +73,7 @@ def main():
         check_data = json.load(file)
 
     # check date
-    if date.today() - date.fromisoformat(check_data["DATE"]) > timedelta(days=args.interval):
+    if date.today() - date.fromisoformat(check_data["DATE"]) >= timedelta(days=args.interval):
         try:
             FSCheck.exec(check_file)
         finally:
