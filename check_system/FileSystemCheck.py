@@ -29,7 +29,7 @@ class FSCheck:
 
         # check if FSCheck is already running
         if fs_check._is_running():
-            #if found: aboort
+            #if found: abort
             raise FSCheckException("Process already running!")
 
         # else: fork process
