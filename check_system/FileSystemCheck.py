@@ -71,6 +71,10 @@ class FSCheck:
             self._delete_pid_file()
 
     def _check_file_stats(self, file):
+        # check if file is indeed a file (and not a link or anything else)
+        if not os.path.isfile(file):
+            return []
+
         stats = os.stat(file)
         data = []
 
