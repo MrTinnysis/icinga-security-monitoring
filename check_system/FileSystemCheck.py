@@ -74,7 +74,7 @@ class FSCheck:
 
             # create/override output file
             with open(output_file_path, "w+") as file:
-                json.dump(data, file)
+                json.dump(data, file, indent=4)
 
         finally:
             # delete pid file
@@ -82,7 +82,7 @@ class FSCheck:
 
     def _check_file_stats(self, path, data_out):
         # check if "file" denotes a regular file
-        if not os.path.isfile(path):
+        if os.path.islink(path) or not os.path.isfile(path):
             return
 
         # get file stats (without following links)
