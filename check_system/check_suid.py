@@ -50,27 +50,44 @@ def main():
         print(args)
 
     db_file = os.path.join(args.path, "FSCheck_db.json")
+    check_file = os.path.join(args.path, "FSCheck.json")
 
     # check if db file exists
     if not os.path.isfile(db_file) or args.update_db:
+        # create/update both db and check file
         FSCheck.exec(db_file)
+        FSCheck.exec(check_file)
         return UNKNOWN
-
-    check_file = os.path.join(args.path, "FSCheck.json")
 
     # check if check-file exists
     if not os.path.isfile(check_file):
         FSCheck.exec(check_file)
         return UNKNOWN
 
+    # load check file
     with open(check_file, "r") as file:
         check_data = json.load(file)
 
+    # check date
     if date.today() - date.fromisoformat(check_data["DATE"]) > args.interval:
         FSCheck.exec(check_file)
         return UNKNOWN
 
-    # calculate diff
+    # load db data
+    with open(db_file, "r") as file:
+        db_data = json.load(file)
+
+    # calculate SUID diff
+    suid_diff = set(check_data["SUID"]) - set(db_data["SUID"])
+
+    if args.verbose:
+        print(f"suid_diff={suid_diff}")
+
+    # calculate SGID diff
+    sgid_diff = set(check_data["SGID"]) - set(db_data["SGID"])
+
+    if args.verbose:
+        print(f"sgid_diff={sgid_diff}")
 
 
 if __name__ == "__main__":
