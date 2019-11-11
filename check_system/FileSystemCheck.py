@@ -58,6 +58,9 @@ class FSCheck:
             data = [date.today().isoformat()]
 
             for root, dirs, files in os.walk(self.scan_path):
+                if "proc" in dirs:
+                    dirs.remove("proc")
+
                 for name in files:
                     data += self._check_file_stats(
                         os.path.join(root, name))
