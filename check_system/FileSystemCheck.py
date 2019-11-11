@@ -24,7 +24,8 @@ class FSCheck:
     @classmethod
     def exec(cls, output_file, blacklist=None, scan_path="/", store_path="/tmp"):
         if not blacklist:
-            blacklist = ["/proc", "/run", "/sys", "/snap", "/var/lib/lxcfs"]
+            #blacklist = ["/proc", "/run", "/sys", "/snap", "/var/lib/lxcfs"]
+            blacklist = []
 
         # create instance
         fs_check = cls(blacklist, scan_path, store_path)
@@ -87,16 +88,24 @@ class FSCheck:
         stats = os.stat(file)
         data = []
 
-        if stats.st_mode & stat.S_ISUID:
-            # SUID Flag set
+        if stats.st_mode & stat.S_ISUID and stats.st_mode & stat.S_IWOTH:
+            # SUID flag set and world writable
             data += ["SUID:" + file]
 
-        if stats.st_mode & stat.S_ISGID:
-            # SGID Flag set
+        if stats.st_mode & stat.S_ISGID and stats.st_mode & stat.S_IWOTH:
+            # SGID flag set and world writable
             data += ["SGID:" + file]
 
-        if stats.st_mode & stat.S_IWOTH:
-            # world writable file
-            data += ["WWRT:" + file]
+        # if stats.st_mode & stat.S_ISUID:
+        #     # SUID Flag set
+        #     data += ["SUID:" + file]
+
+        # if stats.st_mode & stat.S_ISGID:
+        #     # SGID Flag set
+        #     data += ["SGID:" + file]
+
+        # if stats.st_mode & stat.S_IWOTH:
+        #     # world writable file
+        #     data += ["WWRT:" + file]
 
         return data
