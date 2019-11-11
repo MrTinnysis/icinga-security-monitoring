@@ -65,7 +65,7 @@ class FSCheck:
             # create/override output file
             with open(output_file_path, "w+") as file:
                 for line in data:
-                    file.write(line)
+                    file.write(line + "\n")
         finally:
             # delete pid file
             self._delete_pid_file()
