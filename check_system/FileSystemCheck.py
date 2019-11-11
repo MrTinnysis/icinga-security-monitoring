@@ -91,6 +91,6 @@ class FSCheck:
 
         if stats.st_mode & stat.S_IWOTH:
             # world writable file
-            data += ["SUID:" + file]
+            data += ["WWRT:" + file]
 
         return data
