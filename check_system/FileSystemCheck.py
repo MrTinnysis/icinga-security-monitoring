@@ -80,22 +80,22 @@ class FSCheck:
             # delete pid file
             self._delete_pid_file()
 
-    def _check_file_stats(self, file, data_out):
+    def _check_file_stats(self, path, data_out):
         # check if "file" denotes a regular file
-        if not os.path.isfile(file):
+        if not os.path.isfile(path):
             return
 
         # get file stats (without following links)
-        stats = os.stat(file, follow_symlinks=False)
+        stats = os.stat(path, follow_symlinks=False)
 
-        if stats.st_mode & stat.S_ISUID != 0:
+        if stats.st_mode & stat.S_ISUID:
             # regular file with suid flag set
-            data_out["SUID"] += [file]
+            data_out["SUID"] += [path]
 
-        if stats.st_mode & stat.S_ISGID != 0:
+        if stats.st_mode & stat.S_ISGID:
             # regular file with sgid flag set
-            data_out["SGID"] += [file]
+            data_out["SGID"] += [path]
 
         if stats.st_mode & stat.S_IWOTH:
             # world writable file
-            data_out["WWRT"] += [file]
+            data_out["WWRT"] += [path]
