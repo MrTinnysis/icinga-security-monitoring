@@ -1,5 +1,9 @@
 
 import os
+import signal
+import stat
+
+from datetime import date
 
 
 class FSCheckException(Exception):
@@ -8,28 +12,30 @@ class FSCheckException(Exception):
 
 class FSCheck:
 
-    def __init__(self, scan_path="/", store_path="/tmp"):
+    def __init__(self, scan_path, store_path):
         self.scan_path = scan_path
         self.store_path = store_path
         self.pid_file_name = "FSCheck.pid"
+        # make sure pid file gets deleted if process is killed
+        signal.signal(signal.SIGINT, self._delete_pid_file)
+        signal.signal(signal.SIGTERM, self._delete_pid_file)
 
-    def exec(self, output_file_path):
+    @classmethod
+    def exec(cls, output_file, scan_path="/", store_path="/tmp"):
+        # create instance
+        fs_check = cls(scan_path, store_path)
+
         # check if FSCheck is already running
-        if self._is_running():
-            # if found: abort
+        if fs_check._is_running():
+            #if found: aboort
             raise FSCheckException("Process already running!")
 
         # else: fork process
         pid = os.fork()
 
         if pid == 0:
-            print("Child Running...")
             # child process -> execute actual fs check
-            self._internal_exec(output_file_path)
-        else:
-            print("Parent terminating...")
-        # proc = Process(target=self._internal_exec, args=(self, output_file))
-        # proc.start()
+            fs_check._internal_exec(output_file)
 
     def _is_running(self):
         # check if there's a pid file in the store_path
@@ -47,6 +53,37 @@ class FSCheck:
         self._create_pid_file()
 
         # perform actual fs check here
+        try:
+            # add current iso date as first line
+            data = [date.today().isoformat()]
 
-        # delete pid file
-        self._delete_pid_file()
+            for root, dirs, files in os.walk(self.scan_path):
+                for name in files:
+                    data += self._check_file_stats(
+                        os.path.join(root, name))
+
+            # create/override output file
+            with open(output_file_path, "w+") as file:
+                for line in data:
+                    file.write(line)
+        finally:
+            # delete pid file
+            self._delete_pid_file()
+
+    def _check_file_stats(self, file):
+        stats = os.stat(file)
+        data = []
+
+        if stats.st_mode & stat.S_ISUID:
+            # SUID Flag set
+            data += ["SUID:" + file]
+
+        if stats.st_mode & stat.S_ISGID:
+            # SGID Flag set
+            data += ["SGID:" + file]
+
+        if stats.st_mode & stat.S_IWOTH:
+            # world writable file
+            data += ["SUID:" + file]
+
+        return data

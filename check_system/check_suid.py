@@ -5,8 +5,7 @@ from FileSystemCheck import FSCheck
 
 
 def main():
-    fs_check = FSCheck()
-    fs_check.exec("tmp")
+    FSCheck.exec("temp")
 
 
 if __name__ == "__main__":
