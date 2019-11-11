@@ -12,7 +12,8 @@ class FSCheckException(Exception):
 
 class FSCheck:
 
-    def __init__(self, scan_path, store_path):
+    def __init__(self, blacklist, scan_path, store_path):
+        self.blacklist = blacklist
         self.scan_path = scan_path
         self.store_path = store_path
         self.pid_file_name = "FSCheck.pid"
@@ -21,9 +22,9 @@ class FSCheck:
         signal.signal(signal.SIGTERM, self._delete_pid_file)
 
     @classmethod
-    def exec(cls, output_file, scan_path="/", store_path="/tmp"):
+    def exec(cls, output_file, blacklist=["/proc", "/run", "/sys"], scan_path="/", store_path="/tmp"):
         # create instance
-        fs_check = cls(scan_path, store_path)
+        fs_check = cls(blacklist, scan_path, store_path)
 
         # check if FSCheck is already running
         if fs_check._is_running():
@@ -58,8 +59,10 @@ class FSCheck:
             data = [date.today().isoformat()]
 
             for root, dirs, files in os.walk(self.scan_path):
-                if "proc" in dirs:
-                    dirs.remove("proc")
+                # check blacklisted directories
+                for name in dirs:
+                    if os.path.join(root, name) in self.blacklist:
+                        dirs.remove(name)
 
                 for name in files:
                     data += self._check_file_stats(
