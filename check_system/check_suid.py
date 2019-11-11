@@ -4,7 +4,7 @@ import argparse
 import os
 import json
 
-from datetime import date
+from datetime import date, timedelta
 from FileSystemCheck import FSCheck
 
 
@@ -69,7 +69,7 @@ def main():
         check_data = json.load(file)
 
     # check date
-    if date.today() - date.fromisoformat(check_data["DATE"]) > args.interval:
+    if date.today() - date.fromisoformat(check_data["DATE"]) > timedelta(days=args.interval):
         FSCheck.exec(check_file)
         return UNKNOWN
 
