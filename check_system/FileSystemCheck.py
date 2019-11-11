@@ -90,12 +90,12 @@ class FSCheck:
 
         if stats.st_mode & stat.S_ISUID != 0:
             # regular file with suid flag set
-            data_out["SUID"] += file
+            data_out["SUID"] += [file]
 
         if stats.st_mode & stat.S_ISGID != 0:
             # regular file with sgid flag set
-            data_out["SGID"] += file
+            data_out["SGID"] += [file]
 
         if stats.st_mode & stat.S_IWOTH:
             # world writable file
-            data_out["WWRT"] += file
+            data_out["WWRT"] += [file]
