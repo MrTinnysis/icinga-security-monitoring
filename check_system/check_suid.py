@@ -93,8 +93,8 @@ def main():
 
     if len(suid_diff) > 0:
         print(
-            f"CRITICAL: {len(suid_diff)} new SUID Files detected: {suid_diff}")
-        returnCode = CRITICAL
+            f"WARNING: {len(suid_diff)} new SUID File(s) detected: {suid_diff}")
+        returnCode = WARNING
 
     # calculate SGID diff
     sgid_diff = set(check_data["SGID"]) - set(db_data["SGID"])
@@ -104,8 +104,8 @@ def main():
 
     if len(sgid_diff) > 0:
         print(
-            f"CRITICAL: {len(sgid_diff)} new SGID Files detected: {sgid_diff}")
-        returnCode = CRITICAL
+            f"WARNING: {len(sgid_diff)} new SGID File(s) detected: {sgid_diff}")
+        returnCode = WARNING
 
     sys.exit(returnCode)
 
