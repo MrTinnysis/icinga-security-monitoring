@@ -23,11 +23,7 @@ class FSCheck:
         signal.signal(signal.SIGTERM, self._delete_pid_file)
 
     @classmethod
-    def exec(cls, output_file, blacklist=[], scan_path="/", store_path="/tmp"):
-        if not blacklist:
-            #blacklist = ["/proc", "/run", "/sys", "/snap", "/var/lib/lxcfs"]
-            blacklist = []
-
+    def exec(cls, output_file, blacklist=["/proc", "/run", "/sys"], scan_path="/", store_path="/tmp"):
         # create instance
         fs_check = cls(blacklist, scan_path, store_path)
 
@@ -85,12 +81,12 @@ class FSCheck:
             self._delete_pid_file()
 
     def _check_file_stats(self, file, data_out):
+        # check if "file" denotes a regular file
+        if not os.path.isfile(file):
+            return
+
         # get file stats (without following links)
         stats = os.stat(file, follow_symlinks=False)
-
-        # check if "file" denotes a regular file
-        if not stat.S_ISREG(stats.st_mode):
-            return
 
         if stats.st_mode & stat.S_ISUID != 0:
             # regular file with suid flag set
