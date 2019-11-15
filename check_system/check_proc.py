@@ -238,7 +238,7 @@ def main():
                           "SCHED", "PRIO", "LSTAT", "DIR", "STATVFS"]))
 
         for pid, rep in report.items():
-            print(pid + " | " + " | ".join(rep.values))
+            print(str(pid) + " | " + " | ".join(rep.values))
 
     # # calculate set intersection between ps run 1 and run 2
     # # that is: all procs that are in both ps runs (i.e neither started nor terminated)
