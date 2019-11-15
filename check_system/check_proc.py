@@ -57,11 +57,11 @@ def parse_ps_output(ps_output):
 
     ps_output_lines = ps_output.split("\n")
 
-    print(len(ps_output_lines))
-
     for line in ps_output.split("\n"):
         match = regex.match(line)
-        if not match: continue
+        if not match: 
+            print("line skipped")
+            continue
 
         pid = int(match.group(1))
         output_set.add(pid)
