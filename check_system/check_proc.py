@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import subprocess
+import re
 
 
 # monitoring plugin return codes
@@ -50,9 +51,18 @@ def get_max_pid():
         sys.exit(CRITICAL)
 
 
-def parse_ps_output(output):
-    # TODO Implement (return set of pids)
-    pass
+def parse_ps_output(ps_output):
+    output_set = set()
+    regex = re.compile("(\d+) ")
+
+    for line in ps_output:
+        match = regex.match(line)
+        if not match: continue
+
+        pid = match.group(1)
+        output_set.add(pid)
+
+    return output_set
 
 
 def exec_ps():
@@ -180,6 +190,9 @@ def main():
     # execute first ps command
     ps_data = exec_ps()
 
+    if args.verbose:
+        print(f"ps_data: {ps_data}")
+
     # perform process checks
     procs = []
     # bruteforce entire pid range
@@ -192,8 +205,14 @@ def main():
     # execute second ps command
     ps2_data = exec_ps()
 
+    if args.verbose:
+        print(f"ps2_data: {ps2_data}")
+
     # processes that either started or terminated while checks were running
     pid_filter_list = ps_data ^ ps2_data
+
+    if args.verbose:
+        print(f"pid_filter_list={pid_filter_list}")
 
     report = {}
 
