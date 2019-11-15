@@ -76,6 +76,9 @@ def proc_check(retval_success):
                 return PROC_CHECK_NONE
             except FileNotFoundError:
                 return PROC_CHECK_NONE
+            except PermissionError:
+                # Permission Error implies that a process with the given pid exists
+                return retval_success
             else:
                 return retval_success
 
