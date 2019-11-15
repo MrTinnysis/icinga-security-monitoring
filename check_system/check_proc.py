@@ -57,9 +57,7 @@ def parse_ps_output(ps_output):
 
     for line in ps_output.split("\n"):
         match = regex.match(line)
-        if not match: 
-            print(f"line skipped: {line}")
-            continue
+        if not match: continue
 
         pid = int(match.group(1))
         output_set.add(pid)
@@ -240,7 +238,8 @@ def main():
                           "SCHED", "PRIO", "LSTAT", "DIR", "STATVFS"]))
 
         for pid, rep in report.items():
-            print(str(pid) + " | " + " | ".join(rep.values()))
+            line = str(pid) + " | " + " | ".join((str(val) for val in rep.values()))
+            print(line)
 
     # # calculate set intersection between ps run 1 and run 2
     # # that is: all procs that are in both ps runs (i.e neither started nor terminated)
