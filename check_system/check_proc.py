@@ -63,7 +63,7 @@ def parse_ps_output(ps_output):
         match = regex.match(line)
         if not match: continue
 
-        pid = match.group(1)
+        pid = int(match.group(1))
         output_set.add(pid)
 
     return output_set
