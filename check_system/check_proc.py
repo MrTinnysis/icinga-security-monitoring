@@ -232,8 +232,6 @@ def main():
 
     # generate reports
     reports = {}
-
-
     for process in procs:
         # destructure (pid, retval) tuple
         pid, retval = process
