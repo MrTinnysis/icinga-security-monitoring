@@ -59,7 +59,7 @@ def get_max_pid():
 
 def parse_ps_output(ps_output):
     output_set = set()
-    regex = re.compile(".*?(\d+)\s")
+    regex = re.compile(".*?(?:\d+)\s+(\d+)\s")
 
     for line in ps_output.split("\n"):
         match = regex.match(line)
@@ -73,9 +73,9 @@ def parse_ps_output(ps_output):
 
 def exec_ps():
     try:
-        result = subprocess.check_output("ps -e", shell=True).decode("utf-8")
+        result = subprocess.check_output("ps -eT", shell=True).decode("utf-8")
     except subprocess.CalledProcessError:
-        print(f"CRITICLA: Failed to execute 'ps -e' command")
+        print(f"CRITICLA: Failed to execute 'ps -eT' command")
         sys.exit(CRITICAL)
     else:
         return parse_ps_output(result)
