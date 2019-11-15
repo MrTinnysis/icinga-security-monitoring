@@ -52,12 +52,10 @@ def get_max_pid():
 
 
 def parse_ps_output(ps_output):
-    print(ps_output)
-
     output_set = set()
     regex = re.compile("(\d+) ")
 
-    for line in ps_output:
+    for line in ps_output.split("\n"):
         match = regex.match(line)
         if not match: continue
 
