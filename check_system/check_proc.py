@@ -244,7 +244,7 @@ def main():
         print(" | ".join([pad(x, 6) for x in cols]))
 
         for pid, rep in report.items():
-            line = pad(str(pid), 6) + " | " + " | ".join(pad((str(val), 6) for val in rep.values()))
+            line = pad(str(pid), 6) + " | " + " | ".join([pad(str(val), 6) for val in rep.values()])
             print(line)
 
     # # calculate set intersection between ps run 1 and run 2
