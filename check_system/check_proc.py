@@ -67,18 +67,20 @@ def exec_ps():
 
 # Decorator to check if a ProcessLookupError or
 # a FileNotFoundError was thrown
-def proc_check(func, succ):
-    def inner(*args, **kwargs):
-        try:
-            func(args, kwargs)
-        except ProcessLookupError:
-            return PROC_CHECK_NONE
-        except FileNotFoundError:
-            return PROC_CHECK_NONE
-        else:
-            return succ
+def proc_check(succ):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                func(args, kwargs)
+            except ProcessLookupError:
+                return PROC_CHECK_NONE
+            except FileNotFoundError:
+                return PROC_CHECK_NONE
+            else:
+                return succ
 
-    return inner
+        return wrapper
+    return decorator
 
 
 @proc_check(PROC_CHECK_SIG)
