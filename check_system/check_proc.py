@@ -41,6 +41,12 @@ def parse_args():
     return argumentParser.parse_args()
 
 
+def pad(string, size, char=" "):
+    while len(string) < size:
+        string += char
+    return string
+
+
 def get_max_pid():
     max_pid_file = "/proc/sys/kernel/pid_max"
     try:
@@ -234,11 +240,11 @@ def main():
             }
 
     if args.verbose and len(report) > 0:
-        print(" | ".join(["PID", "PS1", "PS2", "SIG", "PGID", "SID",
-                          "SCHED", "PRIO", "LSTAT", "DIR", "STATVFS"]))
+        cols = ["PID", "PS1", "PS2", "SIG", "PGID", "SID", "SCHED", "PRIO", "LSTAT", "DIR", "STATVFS"]
+        print(" | ".join([pad(x, 6) for x in cols]))
 
         for pid, rep in report.items():
-            line = str(pid) + " | " + " | ".join((str(val) for val in rep.values()))
+            line = pad(str(pid), 6) + " | " + " | ".join(pad((str(val), 6) for val in rep.values()))
             print(line)
 
     # # calculate set intersection between ps run 1 and run 2
