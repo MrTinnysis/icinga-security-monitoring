@@ -55,12 +55,10 @@ def parse_ps_output(ps_output):
     output_set = set()
     regex = re.compile("(\d+) ")
 
-    ps_output_lines = ps_output.split("\n")
-
     for line in ps_output.split("\n"):
         match = regex.match(line)
         if not match: 
-            print("line skipped")
+            print(f"line skipped: {line}")
             continue
 
         pid = int(match.group(1))
