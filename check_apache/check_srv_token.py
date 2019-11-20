@@ -5,7 +5,7 @@ import sys
 import re
 import os
 
-from ApacheConfig import ApacheConfig
+from .ApacheConfig import ApacheConfig
 
 # monitoring plugin return codes
 OK = 0

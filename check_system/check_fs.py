@@ -31,52 +31,49 @@ def parse_args():
 
 
 def get_available_file_systems():
-    try:
-        kernel_release = subprocess.check_output(
-            "uname -r", shell=True).decode("utf-8")[0:-1]  # slice off trailing "\n"
-    except subprocess.CalledProcessError as ex:
-        print("CRITICAL: failed to execute command: uname -r")
-        sys.exit(CRITICAL)
-
-    fs_dir = f"/lib/modules/{kernel_release}/kernel/fs"
-
-    # The following folders/files do not contain filesystems
-    blacklist = ["nls", "pstore",
-                 "binfmt_misc.ko", "cachefiles", "dlm", "fscache", "lockd", "nfs_common",
-                 "nfsd", "quota", "blocklayoutdriver", "nfs_layout_nfsv41_files", "'nfs_layout_flexfiles",
-                 "libore", "ocfs2_stackglue", "ocfs2_stack_user", "ocfs2_nodemanager", "ocfs2_stack_o2cb",
-                 "ocfs2_dlmfs"]
-
-    file_systems = []
-    # collect all kernel objects (.ko) files in fs_dir
-    for _, dirs, files in os.walk(fs_dir, followlinks=False):
-        # remove blacklisted fs dirs
-        for d in dirs:
-            if d in blacklist:
-                dirs.remove(d)
-
-        # collect filesystem names
-        for file in files:
-            if file.endswith(".ko") and not file in blacklist:
-                file_systems += [file[0:-3]]
-
-        # file_systems += [file[0:-3]
-        #                  for file in files if file.endswith(".ko") and not file in blacklist]
-
-    return file_systems
-
-    # cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs/*/*.ko"
-
     # try:
-    #     output = subprocess.check_output(cmd, shell=True).decode("utf-8")
-    # except subprocess.CalledProcessError:
-    #     print(f"CRITICAL: failed to execute command: {cmd}")
+    #     kernel_release = subprocess.check_output(
+    #         "uname -r", shell=True).decode("utf-8")[0:-1]  # slice off trailing "\n"
+    # except subprocess.CalledProcessError as ex:
+    #     print("CRITICAL: failed to execute command: uname -r")
     #     sys.exit(CRITICAL)
 
-    # file_systems = re.findall(
-    #     r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
+    # fs_dir = f"/lib/modules/{kernel_release}/kernel/fs"
+
+    # # The following folders do not contain filesystems
+    blacklist = ["nls", "pstore", "cachefiles", "dlm", "fscache", "lockd", "nfs_common",
+                 "nfsd", "quota"]
+
+    # file_systems = []
+    # # collect all kernel objects (.ko) files in fs_dir
+    # for _, dirs, files in os.walk(fs_dir, followlinks=False):
+    #     # remove blacklisted fs dirs
+    #     for d in dirs:
+    #         if d in blacklist:
+    #             dirs.remove(d)
+
+    #     # collect filesystem names
+    #     for file in files:
+    #         if file.endswith(".ko") and not file in blacklist:
+    #             file_systems += [file[0:-3]]
+
+    #     # file_systems += [file[0:-3]
+    #     #                  for file in files if file.endswith(".ko") and not file in blacklist]
 
     # return file_systems
+
+    cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
+
+    try:
+        output = subprocess.check_output(cmd, shell=True).decode("utf-8")
+    except subprocess.CalledProcessError:
+        print(f"CRITICAL: failed to execute command: {cmd}")
+        sys.exit(CRITICAL)
+
+    file_systems = re.findall(
+        r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
+
+    return [fs for fs in file_systems if not fs in blacklist]
 
 
 def check_fs_state(fs):
