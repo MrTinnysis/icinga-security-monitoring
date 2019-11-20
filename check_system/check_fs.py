@@ -46,8 +46,8 @@ def get_available_file_systems():
 
 
 def check_fs_state(fs):
-    cmd = f"modprobe -n -v {fs}"
-    cmd2 = f"lsmod | grep {fs}"
+    cmd = f"modprobe -n -v '{fs}'"
+    cmd2 = f"lsmod | grep '{fs}'"
 
     try:
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
