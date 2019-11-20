@@ -52,7 +52,8 @@ def check_fs_state(fs):
     try:
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
         check_2 = subprocess.check_output(cmd2, shell=True).decode("utf-8")
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as ex:
+        print(ex)
         print(f"CRITICAL: Failed to execute commands {cmd} && {cmd2}")
         sys.exit(CRITICAL)
 
