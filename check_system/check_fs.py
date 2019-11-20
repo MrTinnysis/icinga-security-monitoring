@@ -39,15 +39,19 @@ def get_available_file_systems():
         print(f"CRITICAL: failed to execute command: {cmd}")
         sys.exit(CRITICAL)
 
-    file_systems = []
-    regex = re.compile(" (.*?)$", flags=re.MULTILINE)
-
-    for line in output.split("\n"):
-        match = regex.search(line)
-        if match:
-            file_systems += [match.group(1)]
+    file_systems = re.findall(
+        r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
 
     return file_systems
+
+    # regex = re.compile(r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", flags=re.MULTILINE)
+
+    # for line in output.split("\n"):
+    #     match = regex.search(line)
+    #     if match:
+    #         file_systems += [match.group(1)]
+
+    # return file_systems
 
 
 def check_fs_state(fs):
@@ -58,7 +62,7 @@ def check_fs_state(fs):
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
         check_2 = subprocess.check_output(cmd2, shell=True).decode("utf-8")
     except subprocess.CalledProcessError:
-        print(f"CRITICAL: Failed to execute commands {cmd}, {cmd2}")
+        print(f"CRITICAL: Failed to execute commands {cmd} && {cmd2}")
         sys.exit(CRITICAL)
 
     return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
