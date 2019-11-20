@@ -30,7 +30,7 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-def get_available_file_systems(white_list):
+def get_available_file_systems():
     try:
         kernel_release = subprocess.check_output(
             "uname -r", shell=True).decode("utf-8")[0, -1]  # slice off trailing "\n"
@@ -82,11 +82,6 @@ def check_fs_state(fs):
         print(f"CRITICAL: Failed to execute command {cmd}")
         print(ex)
         sys.exit(CRITICAL)
-
-    # try:
-
-    # except subprocess.CalledProcessError as ex:
-    #     sys.exit(CRITICAL)
 
     return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
 
