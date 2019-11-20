@@ -31,15 +31,15 @@ def parse_args():
 
 
 def get_available_file_systems():
-    try:
-        # retrieve kernel release version
-        kernel_release = subprocess.check_output(
-            "uname -r", shell=True).decode("utf-8")[0:-1]
-    except subprocess.CalledProcessError:
-        print("CRITICAL: failed to execute command: uname -r")
-        sys.exit(CRITICAL)
+    # try:
+    #     # retrieve kernel release version
+    #     kernel_release = subprocess.check_output(
+    #         "uname -r", shell=True).decode("utf-8")[0:-1] # slice off "\n"
+    # except subprocess.CalledProcessError:
+    #     print("CRITICAL: failed to execute command: uname -r")
+    #     sys.exit(CRITICAL)
 
-    cmd = "ls -l /lib/modules/" + kernel_release + "/kernel/fs"
+    cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
 
     try:
         output = subprocess.check_output(cmd, shell=True).decode("utf-8")
@@ -51,6 +51,8 @@ def get_available_file_systems():
     regex = re.compile(" (.*?)$")
 
     for line in output.split("\n"):
+        print(line)
+
         match = regex.match(line)
         if match:
             file_systems += [match.group(1)]
