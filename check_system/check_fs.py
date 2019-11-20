@@ -33,7 +33,7 @@ def parse_args():
 def get_available_file_systems():
     try:
         kernel_release = subprocess.check_output(
-            "uname -r", shell=True).decode("utf-8")[0, -1]  # slice off trailing "\n"
+            "uname -r", shell=True).decode("utf-8")[0:-1]  # slice off trailing "\n"
     except subprocess.CalledProcessError as ex:
         print("CRITICAL: failed to execute command: uname -r")
         sys.exit(CRITICAL)
@@ -50,7 +50,7 @@ def get_available_file_systems():
         # remove whitelisted fs dirs
         dirs = [d for d in dirs if not d in blacklist]
         # collect filesystem names
-        file_systems += [file[0, -3]
+        file_systems += [file[0:-3]
                          for file in files if file.endswith(".ko") and not file in blacklist]
 
     return file_systems
