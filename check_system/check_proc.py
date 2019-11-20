@@ -39,7 +39,7 @@ def parse_args():
     )
     argumentParser.add_argument(
         "-r", "--report-type", default="w", choices=["w", "c", "warning", "critical"],
-        help=""
+        help="Specify whether to issue a warning or critical response if misbehaving processes are found"
     )
 
     return argumentParser.parse_args()
