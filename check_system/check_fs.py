@@ -23,7 +23,7 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-wl", "--white-list", nargs="+", type=list, default=["fat", "btrfs", "cifs"],
+        "-wl", "--white-list", nargs="+", type=list, default=["btrfs", "cifs"],
         help="Specify a filesystem white list"
     )
 
@@ -42,19 +42,26 @@ def get_available_file_systems():
 
     # The following folders/files do not contain filesystems
     blacklist = ["nls", "pstore",
-                 "binfmt_misc.ko", "cachefiles", "dlm", "fscache", "lockd", "nfs_common", "nfsd", "quota"]
+                 "binfmt_misc.ko", "cachefiles", "dlm", "fscache", "lockd", "nfs_common",
+                 "nfsd", "quota", "blocklayoutdriver", "nfs_layout_nfsv41_files", "'nfs_layout_flexfiles",
+                 "libore", "ocfs2_stackglue", "ocfs2_stack_user", "ocfs2_nodemanager", "ocfs2_stack_o2cb",
+                 "ocfs2_dlmfs"]
 
     file_systems = []
     # collect all kernel objects (.ko) files in fs_dir
     for _, dirs, files in os.walk(fs_dir, followlinks=False):
-        # remove whitelisted fs dirs
+        # remove blacklisted fs dirs
         for d in dirs:
             if d in blacklist:
                 dirs.remove(d)
-        # dirs = [d for d in dirs if not d in blacklist]
+
         # collect filesystem names
-        file_systems += [file[0:-3]
-                         for file in files if file.endswith(".ko") and not file in blacklist]
+        for file in files:
+            if file.endswith(".ko") and not file in blacklist:
+                file_systems += [file[0:-3]]
+
+        # file_systems += [file[0:-3]
+        #                  for file in files if file.endswith(".ko") and not file in blacklist]
 
     return file_systems
 
@@ -86,7 +93,7 @@ def check_fs_state(fs):
         print(ex)
         sys.exit(CRITICAL)
 
-    return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
+    return check_1 in ["install /bin/true", "install /bin/false"] and check_2 == ""
 
 
 def main():
