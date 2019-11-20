@@ -77,19 +77,29 @@ def main():
     # get all filesystems that are installed on the system
     file_systems = get_available_file_systems()
 
+    if args.verbose:
+        print(f"Filesystems found: {file_systems}")
+
     # filter by whitelist
     filtered_file_systems = [
         fs for fs in file_systems if not fs in args.white_list]
 
+    if args.verbose:
+        print(f"Filtered File Systems: {filtered_file_systems}")
+
     # filter by "enabled" state
     enabled_file_systems = [
         fs for fs in filtered_file_systems if check_fs_state(fs)]
+
+    if args.verbose:
+        print(f"Enabled File Systems: {enabled_file_systems}")
 
     if len(enabled_file_systems) > 0:
         print(
             f"WARNING: The following filesystems should be disabled: {enabled_file_systems}")
         sys.exit(WARNING)
 
+    print("OK: all unused filesystems disabled")
     sys.exit(OK)
 
 
