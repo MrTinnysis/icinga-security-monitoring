@@ -4,6 +4,7 @@ import requests
 import argparse
 import sys
 import re
+from requests.auth import HTTPBasicAuth
 
 # monitoring plugin return codes
 OK = 0
@@ -31,7 +32,6 @@ def parse_args():
 
 
 def main():
-
     # defaults
     returnCode = UNKNOWN
     status = ''
@@ -42,11 +42,11 @@ def main():
     # parse CLI Arguments
     arguments = parse_args()
 
-    try:
+    apiURL = 'https://api.certspotter.com/v1/issuances?domain=' + arguments.domain + '&include_subdomains=true&match_wildcards=true&expand=issuer&expand=dns_names'
+    apiKey = '22104_wWjXY2cQu4P8XwMGp9py'
 
-        response = requests.get(
-            'https://api.certspotter.com/v1/issuances',
-            params=b'domain=bfh.ch&expand=dns_names&expand=issuer')
+    try:
+        response = requests.get(apiURL, auth=HTTPBasicAuth(apiKey, ''))
 
         certCount = 0
         for cert in response.json():
@@ -54,7 +54,7 @@ def main():
             issuerOrganisationName = re.findall('O=(.*),', cert['issuer']['name'])[0]
             if issuerOrganisationName not in arguments.issuer:
                 criticalCount += 1
-                status += 'CRITICAL: ' + issuerOrganisationName + 'is not in whitelist!;'
+                status += 'CRITICAL: ' + issuerOrganisationName + ' is not in whitelist!;'
 
         if criticalCount > 0:
             returnCode = CRITICAL
