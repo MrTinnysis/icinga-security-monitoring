@@ -23,7 +23,7 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-wl", "--white-list", nargs="+", type=list, default=["fat", "btrfs", "cifs"],
+        "-wl", "--white-list", nargs="+", type=list, default=["btrfs", "cifs"],
         help="Specify a filesystem white list"
     )
 
@@ -31,6 +31,37 @@ def parse_args():
 
 
 def get_available_file_systems():
+    # try:
+    #     kernel_release = subprocess.check_output(
+    #         "uname -r", shell=True).decode("utf-8")[0:-1]  # slice off trailing "\n"
+    # except subprocess.CalledProcessError as ex:
+    #     print("CRITICAL: failed to execute command: uname -r")
+    #     sys.exit(CRITICAL)
+
+    # fs_dir = f"/lib/modules/{kernel_release}/kernel/fs"
+
+    # # The following folders do not contain filesystems
+    blacklist = ["nls", "pstore", "cachefiles", "dlm", "fscache", "lockd", "nfs_common",
+                 "nfsd", "quota"]
+
+    # file_systems = []
+    # # collect all kernel objects (.ko) files in fs_dir
+    # for _, dirs, files in os.walk(fs_dir, followlinks=False):
+    #     # remove blacklisted fs dirs
+    #     for d in dirs:
+    #         if d in blacklist:
+    #             dirs.remove(d)
+
+    #     # collect filesystem names
+    #     for file in files:
+    #         if file.endswith(".ko") and not file in blacklist:
+    #             file_systems += [file[0:-3]]
+
+    #     # file_systems += [file[0:-3]
+    #     #                  for file in files if file.endswith(".ko") and not file in blacklist]
+
+    # return file_systems
+
     cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
 
     try:
@@ -42,7 +73,7 @@ def get_available_file_systems():
     file_systems = re.findall(
         r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
 
-    return file_systems
+    return [fs for fs in file_systems if not fs in blacklist]
 
 
 def check_fs_state(fs):
@@ -51,12 +82,15 @@ def check_fs_state(fs):
 
     try:
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        check_2 = subprocess.check_output(cmd2, shell=True).decode("utf-8")
-    except subprocess.CalledProcessError:
-        print(f"CRITICAL: Failed to execute commands {cmd} && {cmd2}")
+        # dont check return code (because grep exists with return code 1 if nothing was found)
+        check_2 = subprocess.run(
+            cmd2, shell=True, check=False, text=True, capture_output=True).stdout
+    except subprocess.CalledProcessError as ex:
+        print(f"CRITICAL: Failed to execute command {cmd}")
+        print(ex)
         sys.exit(CRITICAL)
 
-    return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
+    return check_1 in ["install /bin/true", "install /bin/false"] and check_2 == ""
 
 
 def main():
