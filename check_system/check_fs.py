@@ -31,18 +31,34 @@ def parse_args():
 
 
 def get_available_file_systems():
-    cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
-
     try:
-        output = subprocess.check_output(cmd, shell=True).decode("utf-8")
-    except subprocess.CalledProcessError:
-        print(f"CRITICAL: failed to execute command: {cmd}")
+        kernel_release = subprocess.check_output(
+            "uname -r", shell=True).decode("utf-8")[0, -1]  # slice off trailing "\n"
+    except subprocess.CalledProcessError as ex:
+        print("CRITICAL: failed to execute command: uname -r")
         sys.exit(CRITICAL)
 
-    file_systems = re.findall(
-        r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
+    fs_dir = f"/lib/modules/{kernel_release}/kernel/fs"
+
+    file_systems = []
+    # collect all kernel objects (.ko) files in fs_dir
+    for _, _, files in os.walk(fs_dir, followlinks=False):
+        file_systems += [fs for fs in files if fs.endswith(".ko")]
 
     return file_systems
+
+    # cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
+
+    # try:
+    #     output = subprocess.check_output(cmd, shell=True).decode("utf-8")
+    # except subprocess.CalledProcessError:
+    #     print(f"CRITICAL: failed to execute command: {cmd}")
+    #     sys.exit(CRITICAL)
+
+    # file_systems = re.findall(
+    #     r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
+
+    # return file_systems
 
 
 def check_fs_state(fs):
@@ -51,7 +67,7 @@ def check_fs_state(fs):
 
     try:
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        # check_2 = subprocess.check_output(cmd2, shell=True).decode("utf-8")
+        # dont check return code (because grep exists with return code 1 if nothing was found)
         check_2 = subprocess.run(
             cmd2, shell=True, check=False, text=True, capture_output=True).stdout
     except subprocess.CalledProcessError as ex:
