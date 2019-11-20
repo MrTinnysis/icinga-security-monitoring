@@ -31,23 +31,31 @@ def parse_args():
 
 
 def get_available_file_systems():
-    cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
+    try:
+        # retrieve kernel release version
+        kernel_release = subprocess.check_output(
+            "uname -r", shell=True).decode("utf-8")
+    except subprocess.CalledProcessError:
+        print("CRITICAL: failed to execute command: uname -r")
+        sys.exit(CRITICAL)
+
+    cmd = "ls -l /lib/modules/" + kernel_release + "/kernel/fs"
 
     try:
         output = subprocess.check_output(cmd, shell=True).decode("utf-8")
     except subprocess.CalledProcessError:
         print(f"CRITICAL: failed to execute command: {cmd}")
         sys.exit(CRITICAL)
-    else:
-        file_systems = []
-        regex = re.compile(" (.*?)$")
 
-        for line in output.split("\n"):
-            match = regex.match(line)
-            if match:
-                file_systems += [match.group(1)]
+    file_systems = []
+    regex = re.compile(" (.*?)$")
 
-        return file_systems
+    for line in output.split("\n"):
+        match = regex.match(line)
+        if match:
+            file_systems += [match.group(1)]
+
+    return file_systems
 
 
 def check_fs_state(fs):
@@ -60,8 +68,8 @@ def check_fs_state(fs):
     except subprocess.CalledProcessError:
         print(f"CRITICAL: Failed to execute commands {cmd}, {cmd2}")
         sys.exit(CRITICAL)
-    else:
-        return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
+
+    return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
 
 
 def main():
