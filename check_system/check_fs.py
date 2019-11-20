@@ -30,7 +30,7 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-def get_available_file_systems():
+def get_available_file_systems(white_list):
     try:
         kernel_release = subprocess.check_output(
             "uname -r", shell=True).decode("utf-8")[0, -1]  # slice off trailing "\n"
@@ -40,14 +40,22 @@ def get_available_file_systems():
 
     fs_dir = f"/lib/modules/{kernel_release}/kernel/fs"
 
+    # The following folders/files do not contain filesystems
+    blacklist = ["nls", "pstore",
+                 "binfmt_misc.ko", "dlm", "fscache", "lockd", "nfs_common", "nfsd", "quota"]
+
     file_systems = []
     # collect all kernel objects (.ko) files in fs_dir
-    for _, _, files in os.walk(fs_dir, followlinks=False):
-        file_systems += [fs for fs in files if fs.endswith(".ko")]
+    for _, dirs, files in os.walk(fs_dir, followlinks=False):
+        # remove whitelisted fs dirs
+        dirs = [d for d in dirs if not d in blacklist]
+        # collect filesystem names
+        file_systems += [file[0, -3]
+                         for file in files if file.endswith(".ko") and not file in blacklist]
 
     return file_systems
 
-    # cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
+    # cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs/*/*.ko"
 
     # try:
     #     output = subprocess.check_output(cmd, shell=True).decode("utf-8")
