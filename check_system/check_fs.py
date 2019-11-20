@@ -43,7 +43,7 @@ def get_available_file_systems():
     regex = re.compile(" (.*?)$", flags=re.MULTILINE)
 
     for line in output.split("\n"):
-        match = regex.match(line)
+        match = regex.search(line)
         if match:
             file_systems += [match.group(1)]
 
