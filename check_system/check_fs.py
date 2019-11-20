@@ -42,13 +42,16 @@ def get_available_file_systems():
 
     # The following folders/files do not contain filesystems
     blacklist = ["nls", "pstore",
-                 "binfmt_misc.ko", "dlm", "fscache", "lockd", "nfs_common", "nfsd", "quota"]
+                 "binfmt_misc.ko", "cachefiles", "dlm", "fscache", "lockd", "nfs_common", "nfsd", "quota"]
 
     file_systems = []
     # collect all kernel objects (.ko) files in fs_dir
     for _, dirs, files in os.walk(fs_dir, followlinks=False):
         # remove whitelisted fs dirs
-        dirs = [d for d in dirs if not d in blacklist]
+        for d in dirs:
+            if d in blacklist:
+                dirs.remove(d)
+        # dirs = [d for d in dirs if not d in blacklist]
         # collect filesystem names
         file_systems += [file[0:-3]
                          for file in files if file.endswith(".ko") and not file in blacklist]
