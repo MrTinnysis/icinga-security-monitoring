@@ -51,11 +51,17 @@ def check_fs_state(fs):
 
     try:
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        check_2 = subprocess.check_output(cmd2, shell=True).decode("utf-8")
+        check_2 = subprocess.check_output(
+            cmd2, shell=True, check=False).decode("utf-8")
     except subprocess.CalledProcessError as ex:
+        print(f"CRITICAL: Failed to execute command {cmd}")
         print(ex)
-        print(f"CRITICAL: Failed to execute commands {cmd} && {cmd2}")
         sys.exit(CRITICAL)
+
+    # try:
+
+    # except subprocess.CalledProcessError as ex:
+    #     sys.exit(CRITICAL)
 
     return check_1 == ("install /bin/true" or check_1 == "install /bin/false") and check_2 == ""
 
