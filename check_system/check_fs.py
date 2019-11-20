@@ -44,19 +44,10 @@ def get_available_file_systems():
 
     return file_systems
 
-    # regex = re.compile(r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", flags=re.MULTILINE)
-
-    # for line in output.split("\n"):
-    #     match = regex.search(line)
-    #     if match:
-    #         file_systems += [match.group(1)]
-
-    # return file_systems
-
 
 def check_fs_state(fs):
-    cmd = "modprobe -n -v " + fs
-    cmd2 = "lsmod | grep " + fs
+    cmd = f"modprobe -n -v {fs}"
+    cmd2 = f"lsmod | grep {fs}"
 
     try:
         check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
