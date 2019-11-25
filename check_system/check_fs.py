@@ -76,21 +76,39 @@ def get_available_file_systems():
     return [fs for fs in file_systems if not fs in blacklist]
 
 
-def check_fs_state(fs):
+def _check(fs):
     cmd = f"modprobe -n -v '{fs}'"
     cmd2 = f"lsmod | grep '{fs}'"
 
     try:
-        check_1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        check1 = subprocess.check_output(cmd, shell=True).decode("utf-8")
         # dont check return code (because grep exists with return code 1 if nothing was found)
-        check_2 = subprocess.run(
+        check2 = subprocess.run(
             cmd2, shell=True, check=False, text=True, capture_output=True).stdout
     except subprocess.CalledProcessError as ex:
         print(f"CRITICAL: Failed to execute command {cmd}")
         print(ex)
         sys.exit(CRITICAL)
 
-    return check_1 in ["install /bin/true", "install /bin/false"] and check_2 == ""
+    return check1 in ["install /bin/true", "install /bin/false"] and check2 == ""
+
+
+def check_fs_state(fs):
+    mapping = {
+        "fuse": ["cuse"],
+        "overlayfs": ["overlay"],
+        "fat": ["msdos"],
+        "quota": ["quota_v1", "quota_v2"],
+        "nfs": ["nfs", "nfsv2", "nfsv3", "nfsv4"],
+        "afs": ["kafs"]
+    }
+
+    if fs in mapping:
+        fs_list = mapping[fs]
+    else:
+        fs_list = [fs]
+
+    return not all(map(_check, fs_list))
 
 
 def main():
