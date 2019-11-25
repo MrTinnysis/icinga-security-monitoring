@@ -31,36 +31,9 @@ def parse_args():
 
 
 def get_available_file_systems():
-    # try:
-    #     kernel_release = subprocess.check_output(
-    #         "uname -r", shell=True).decode("utf-8")[0:-1]  # slice off trailing "\n"
-    # except subprocess.CalledProcessError as ex:
-    #     print("CRITICAL: failed to execute command: uname -r")
-    #     sys.exit(CRITICAL)
-
-    # fs_dir = f"/lib/modules/{kernel_release}/kernel/fs"
-
     # # The following folders do not contain filesystems
     blacklist = ["nls", "pstore", "cachefiles", "dlm", "fscache", "lockd", "nfs_common",
                  "nfsd", "quota", "binfmt_misc.ko"]
-
-    # file_systems = []
-    # # collect all kernel objects (.ko) files in fs_dir
-    # for _, dirs, files in os.walk(fs_dir, followlinks=False):
-    #     # remove blacklisted fs dirs
-    #     for d in dirs:
-    #         if d in blacklist:
-    #             dirs.remove(d)
-
-    #     # collect filesystem names
-    #     for file in files:
-    #         if file.endswith(".ko") and not file in blacklist:
-    #             file_systems += [file[0:-3]]
-
-    #     # file_systems += [file[0:-3]
-    #     #                  for file in files if file.endswith(".ko") and not file in blacklist]
-
-    # return file_systems
 
     cmd = "ls -l /lib/modules/$(uname -r)/kernel/fs"
 
@@ -90,7 +63,7 @@ def _check(fs):
         print(ex)
         sys.exit(CRITICAL)
 
-    return check1 in ["install /bin/true", "install /bin/false"] and check2 == ""
+    return ("install /bin/true" in check1 or "install /bin/false" in check1) and check2 == ""
 
 
 def check_fs_state(fs):
