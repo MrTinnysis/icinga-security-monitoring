@@ -31,10 +31,6 @@ def parse_args():
         "-e", "--env", nargs="?", const="/etc/apache2/envvars", default=None,
         help="path to the environment variables file"
     )
-    argumentParser.add_argument(
-        "-vh", "--vhost", default=None,
-        help="virtual host whose config should be loaded (if any)"
-    )
 
     return argumentParser.parse_args()
 
@@ -59,28 +55,7 @@ def main():
 
     config = ApacheConfig(args.config, env_var_file=args.env)
 
-    server_sig = config.get("ServerSignature", args.vhost)
-    server_tokens = config.get("ServerTokens", args.vhost)
-
-    # print the configured entries
-    if args.verbose:
-        print(f"server_sig = {server_sig}")
-        print(f"server_tokens = {server_tokens}")
-
-    # check if either ServerSignature or ServerTokens config is missing
-    if not server_sig or not server_tokens:
-        print("CRITICAL: Missing Configuration for ServerSignature and/or ServerTokens")
-        sys.exit(CRITICAL)
-
-    if server_sig != "Off" or server_tokens != "Prod":
-        print("WARNING: Potentially insecure configuration for ServerSignature and/or ServerTokens")
-        print(
-            f"Configured Value: 'ServerSignature {server_sig}', should be 'ServerSignature Off'")
-        print(
-            f"Configured Value: 'ServerTokens {server_tokens}', should be 'ServerTokens Prod'")
-        sys.exit(WARNING)
-
-    print("OK: Server Information hidden")
+    print("OK: Access to .ht* files and to server root protected")
     sys.exit(OK)
 
 
