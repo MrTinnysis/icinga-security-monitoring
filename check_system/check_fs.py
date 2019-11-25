@@ -42,7 +42,7 @@ def get_available_file_systems():
 
     # # The following folders do not contain filesystems
     blacklist = ["nls", "pstore", "cachefiles", "dlm", "fscache", "lockd", "nfs_common",
-                 "nfsd", "quota"]
+                 "nfsd", "quota", "binfmt_misc.ko"]
 
     # file_systems = []
     # # collect all kernel objects (.ko) files in fs_dir
