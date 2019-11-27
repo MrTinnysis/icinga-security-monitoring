@@ -69,8 +69,7 @@ def get_dhcp_discovery(verbose=False):
                 options=[("message-type", "discover"), "end"])
 
     if verbose:
-        # dhcp_discovery.show()
-        print(f"DHCP Discovery: {repr(dhcp_discovery)}")
+        dhcp_discovery.show()
 
     return dhcp_discovery
 
@@ -96,8 +95,8 @@ def main():
             dhcp_discovery, multi=True, timeout=args.timeout)
     except PermissionError as err:
         print(
-            f"CRITICAL: Insufficient Permissions to send network packet: {err}")
-        sys.exit(CRITICAL)
+            f"UNKNOWN: Insufficient Permissions to send network packet: {err}")
+        sys.exit(UNKNOWN)
 
     if args.verbose:
         answer_pkts.summary()
@@ -105,8 +104,8 @@ def main():
     # check if there was at least one answer
     if len(unanswered_pkts) > 0:
         print(
-            f"WARNING: DHCP Discovery remained unanswered for {args.timeout} sec.")
-        sys.exit(WARNING)
+            f"UNKNOWN: DHCP Discovery remained unanswered for {args.timeout} sec.")
+        sys.exit(UNKNOWN)
 
     # get (mac, ip) pairs for each response
     dhcp_servers = [(pkt[1][Ether].src, pkt[1][IP].src) for pkt in answer_pkts]
