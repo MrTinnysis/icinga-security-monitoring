@@ -96,6 +96,9 @@ def main():
             f"UNKNOWN: Insufficient permissions to send network packet: {err}")
         sys.exit(UNKNOWN)
 
+    if args.verbose:
+        answer_pkts.summary()
+
     # check if a response was received
     if len(unanswered_pkts) > 0:
         print(
