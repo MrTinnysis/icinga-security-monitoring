@@ -90,7 +90,7 @@ def main():
     try:
         # send arp request and wait {timeout} seconds for responses
         answer_pkts, unanswered_pkts = srp(
-            arp, multi=True, timeout=args.timeout, filter="arp", verbose=False)
+            arp, multi=True, timeout=args.timeout, filter="arp", verbose=args.verbose)
     except PermissionError as err:
         print(
             f"UNKNOWN: Insufficient permissions to send network packet: {err}")
