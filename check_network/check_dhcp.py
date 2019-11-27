@@ -70,7 +70,7 @@ def get_dhcp_discovery(verbose=False):
 
     if verbose:
         # dhcp_discovery.show()
-        print(f"DHCP Discovery: {dhcp_discovery}")
+        print(f"DHCP Discovery: {repr(dhcp_discovery)}")
 
     return dhcp_discovery
 
