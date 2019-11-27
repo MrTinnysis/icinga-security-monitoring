@@ -90,8 +90,12 @@ def main():
     dhcp_discovery = get_dhcp_discovery(args.verbose)
 
     # send packet and wait {timeout} seconds for responses
-    answer_pkts, unanswered_pkts = srp(
-        dhcp_discovery, multi=True, timeout=args.timeout)
+    try:
+        answer_pkts, unanswered_pkts = srp(
+            dhcp_discovery, multi=True, timeout=args.timeout)
+    except PermissionError as err:
+        print(f"CRITICAL: Insufficient Permissions to send network packet: {err}")
+        sys.exit(CRITICAL)
 
     if args.verbose:
         answer_pkts.summary()
