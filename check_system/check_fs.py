@@ -72,7 +72,7 @@ def check_fs_state(fs):
         "overlayfs": ["overlay"],
         "fat": ["msdos"],
         "quota": ["quota_v1", "quota_v2"],
-        "nfs": ["nfs", "nfsv2", "nfsv3", "nfsv4"],
+        "nfs": ["nfs"],
         "afs": ["kafs"]
     }
 
