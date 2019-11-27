@@ -68,6 +68,10 @@ def main():
     # retrieve current ip and default gateway from routing table
     _, ip, gateway = Route().route()
 
+    if args.verbose:
+        print(f"Local IP={ip}")
+        print(f"Gateway={gateway}")
+
     # if no ip is specified, use default gateway
     if not args.ip:
         args.ip = gateway
@@ -75,10 +79,13 @@ def main():
     # ensure specified ip is not the current ip
     if ip == args.ip:
         raise argparse.ArgumentError(
-            "Cannot send ARP request for own IP address!")
+            "Cannot send ARP request for local IP address!")
 
     # build arp request for ip
     arp = get_arp_request(args.ip)
+
+    if args.verbose:
+        arp.show()
 
     try:
         # send arp request and wait {timeout} seconds for responses
