@@ -16,6 +16,48 @@ CRITICAL = 2
 UNKNOWN = 3
 
 
+class DropList:
+    def __init__(self, file="/tmp/drop_list.txt"):
+        self.file = file
+        if not os.path.isfile(self.file):
+            self.data = self._retrieve_drop_list()
+        else:
+            with open(self.file, "r") as f:
+                timestamp = date.fromisoformat(f.readline()[2:])
+
+            # check timestamp
+            if date.today() - timestamp > timedelta(days=1):
+                self.data = self._retrieve_drop_list()
+            else:
+                self.data = self._parse_drop_list()
+
+    def contains_ip(self, ip):
+        for line in self.data:
+            network, netmask = line.split("/")
+        pass
+
+    def _retrieve_drop_list(self):
+        # retrieve DROP and EDROP list
+        drop = requests.get("https://www.spamhaus.org/drop/drop.txt").text
+        edrop = requests.get("https://www.spamhaus.org/drop/edrop.txt").text
+
+        # write both lists into the file
+        with open(self.file, "w+") as file:
+            file.write("; " + date.today().isoformat())
+            file.write(drop)
+            file.write(edrop)
+
+        return self._parse_drop_list()
+
+    def _parse_drop_list(self):
+        with open(self.file, "r") as file:
+            return [line.split(" ; ")[0] for line in file if not line.startsWith(";")]
+
+    def __repr__(self):
+        return self.data.__repr__()
+
+
+
 # define period
 def period(string):
     if not re.search("^\d{1,2}[dhm]$", string):
@@ -113,43 +155,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-class DropList:
-    def __init__(self, file="/tmp/drop_list.txt"):
-        self.file = file
-        if not os.path.isfile(self.file):
-            self.data = self._retrieve_drop_list()
-        else:
-            with open(self.file, "r") as f:
-                timestamp = date.fromisoformat(f.readline()[2:])
-
-            # check timestamp
-            if date.today() - timestamp > timedelta(days=1):
-                self.data = self._retrieve_drop_list()
-            else:
-                self.data = self._parse_drop_list()
-
-    def contains_ip(self, ip):
-        for line in self.data:
-            network, netmask = line.split("/")
-        pass
-
-    def _retrieve_drop_list(self):
-        # retrieve DROP and EDROP list
-        drop = requests.get("https://www.spamhaus.org/drop/drop.txt").text
-        edrop = requests.get("https://www.spamhaus.org/drop/edrop.txt").text
-
-        # write both lists into the file
-        with open(self.file, "w+") as file:
-            file.write("; " + date.today().isoformat())
-            file.write(drop)
-            file.write(edrop)
-
-        return self._parse_drop_list()
-
-    def _parse_drop_list(self):
-        with open(self.file, "r") as file:
-            return [line.split(" ; ")[0] for line in file if not line.startsWith(";")]
-
-    def __repr__(self):
-        return self.data.__repr__()
