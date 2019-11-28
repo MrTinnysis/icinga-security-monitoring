@@ -7,7 +7,7 @@ import re
 import requests
 
 from datetime import date, timedelta
-from ..check_journald import JournalReader
+from check_network import JournalReader
 
 # monitoring plugin return codes
 OK = 0
