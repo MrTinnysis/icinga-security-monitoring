@@ -70,21 +70,6 @@ def main():
     if args.verbose:
         print(args)
 
-    # retrieve current ip and default gateway from routing table
-    # _, ip, gateway = Route().route()
-
-    # if args.verbose:
-    #     print(f"Local IP={ip}")
-    #     print(f"Gateway={gateway}")
-
-    # # if no ip is specified, use default gateway
-    # if not args.ip:
-    #     args.ip = gateway
-
-    # ensure specified ip is not the current ip
-    # if ip == args.ip:
-    #     raise AssertionError("Cannot send ARP request for local IP address!")
-
     # get mac address for specified interface
     mac = get_if_hwaddr(args.interface)
 

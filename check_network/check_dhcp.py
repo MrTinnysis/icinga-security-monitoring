@@ -49,6 +49,10 @@ def parse_args():
         help="Specify DHCP Server whitelist \"mac, ip\" pairs"
     )
     argumentParser.add_argument(
+        "-if", "--interface", default=conf.iface,
+        help="Specify the interface used to send the DHCP Discovery Packet"
+    )
+    argumentParser.add_argument(
         "-t", "--timeout", type=int, default=5,
         help="Specify the amount of seconds that should be waited for DHCP Responses"
     )
@@ -56,12 +60,12 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-def get_dhcp_discovery(verbose=False):
+def get_dhcp_discovery(interface, verbose=False):
     # get interface hw addr
-    _, hw = get_if_raw_hwaddr(conf.iface)
+    _, hw = get_if_raw_hwaddr(interface)
 
     if verbose:
-        print(f"Interface: {conf.iface} -> {hw}")
+        print(f"Interface: {interface} -> {hw}")
 
     dhcp_discovery = Ether(dst="ff:ff:ff:ff:ff:ff")/IP(
         src="0.0.0.0", dst="255.255.255.255")/UDP(
@@ -87,7 +91,7 @@ def main():
     conf.checkIPaddr = False
 
     # build dhcp discovery packet
-    dhcp_discovery = get_dhcp_discovery(args.verbose)
+    dhcp_discovery = get_dhcp_discovery(args.interface, args.verbose)
 
     try:
         # send packet and wait {timeout} seconds for responses
