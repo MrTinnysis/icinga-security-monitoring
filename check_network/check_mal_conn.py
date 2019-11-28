@@ -51,11 +51,10 @@ class DropList:
 
     def _parse_drop_list(self):
         with open(self.file, "r") as file:
-            return [line.split(" ; ")[0] for line in file if not line.startsWith(";")]
+            return [line.split(" ; ")[0] for line in file if not line.startswith(";")]
 
     def __repr__(self):
         return self.data.__repr__()
-
 
 
 # define period
@@ -154,4 +153,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
