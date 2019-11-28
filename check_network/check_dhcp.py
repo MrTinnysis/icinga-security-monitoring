@@ -95,8 +95,9 @@ def main():
 
     try:
         # send packet and wait {timeout} seconds for responses
-        answer_pkts, unanswered_pkts = srp(
-            dhcp_discovery, multi=True, timeout=args.timeout, filter="port 68 and port 67", verbose=(2 if args.verbose else 0))
+        answer_pkts, unanswered_pkts = srp(dhcp_discovery, iface=args.interface, multi=True,
+                                           timeout=args.timeout, filter="port 68 and port 67",
+                                           verbose=(2 if args.verbose else 0))
     except PermissionError as err:
         print(
             f"UNKNOWN: Insufficient Permissions to send network packet: {err}")
