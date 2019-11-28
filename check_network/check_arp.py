@@ -5,12 +5,7 @@ import os
 import sys
 import re
 
-#
-# Inspired by:
-# https://scapy.readthedocs.io/en/latest/usage.html#identifying-rogue-dhcp-servers-on-your-lan
-#
-
-from scapy.all import srp, Ether, ARP, Route
+from scapy.all import srp, conf, get_if_hwaddr, Ether, ARP, Route
 
 # monitoring plugin return codes
 OK = 0
@@ -30,6 +25,12 @@ def ip_addr(arg):
     return match.group(1)
 
 
+def get_default_gateway(ip=None):
+    # retrieve the default gateway for the given ip from routing table
+    _, _, gateway = Route().route(ip)
+    return gateway
+
+
 def parse_args():
     # Parses the CLI Arguments and returns a dict containing the
     # corresponding values
@@ -40,8 +41,12 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-i", "--ip", type=ip_addr, default=None,
+        "-ip", type=ip_addr, default=get_default_gateway(),
         help="Specify the ip address that should be used to detect arp spoofing"
+    )
+    argumentParser.add_argument(
+        "-if", "--interface", default=conf.iface,
+        help="Specify the interface that should be used to detect arp spoofing"
     )
     argumentParser.add_argument(
         "-t", "--timeout", type=int, default=5,
@@ -51,8 +56,8 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-def get_arp_request(ip):
-    return Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(hwlen=6, plen=4, pdst=ip)
+def get_arp_request(ip, mac):
+    return Ether(dst="ff:ff:ff:ff:ff:ff", src=mac)/ARP(hwlen=6, plen=4, hwsrc=mac, pdst=ip)
 
 
 def main():
@@ -66,23 +71,30 @@ def main():
         print(args)
 
     # retrieve current ip and default gateway from routing table
-    _, ip, gateway = Route().route()
+    # _, ip, gateway = Route().route()
 
-    if args.verbose:
-        print(f"Local IP={ip}")
-        print(f"Gateway={gateway}")
+    # if args.verbose:
+    #     print(f"Local IP={ip}")
+    #     print(f"Gateway={gateway}")
 
-    # if no ip is specified, use default gateway
-    if not args.ip:
-        args.ip = gateway
+    # # if no ip is specified, use default gateway
+    # if not args.ip:
+    #     args.ip = gateway
 
     # ensure specified ip is not the current ip
-    if ip == args.ip:
-        raise argparse.ArgumentError(
-            "Cannot send ARP request for local IP address!")
+    # if ip == args.ip:
+    #     raise AssertionError("Cannot send ARP request for local IP address!")
+
+    # get mac address for specified interface
+    mac = get_if_hwaddr(args.interface)
+
+    if args.verbose:
+        print(f"Interface: {args.interface}")
+        print(f"MAC: {mac}")
+        print(f"IP: {args.ip}")
 
     # build arp request for ip
-    arp = get_arp_request(args.ip)
+    arp = get_arp_request(args.ip, mac)
 
     if args.verbose:
         arp.show()
