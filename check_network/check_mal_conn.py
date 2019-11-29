@@ -53,9 +53,6 @@ class DropList:
         with open(self.file, "r") as file:
             return [ip_network(line.split(" ; ")[0]) for line in file if not line.startswith(";")]
 
-    def __repr__(self):
-        return self.data.__repr__()
-
 
 # define period
 def period(string):
@@ -75,7 +72,7 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-jp", '--journal-path',
+        "-j", '--journal-path',
         help='path to journal log folder'
     )
     argumentParser.add_argument(
@@ -89,6 +86,10 @@ def parse_args():
     argumentParser.add_argument(
         "-i", "--inbound", required=True,
         help="Specify the log prefix used for inbound connections"
+    )
+    argumentParser.add_argument(
+        "-d", "--drop-list", default="/tmp/drop_list.txt",
+        help="Specify the location where the droplist should be cached"
     )
 
     return argumentParser.parse_args()
@@ -105,7 +106,7 @@ def main():
         print(args)
 
     # Get drop_list
-    drop_list = DropList()
+    drop_list = DropList(args.drop_list)
 
     # setup journal reader
     journal = JournalReader(args.journal_path)
