@@ -82,6 +82,14 @@ def parse_args():
         "-p", '--period', metavar='NUMBER', default='1h', type=period,
         help='check log of last period (default: "30m", format 1-99m/h/d)'
     )
+    argumentParser.add_argument(
+        "-o", "--outbound", default="Outbound: ",
+        help="Specify the log prefix used for outbound connections"
+    )
+    argumentParser.add_argument(
+        "-i", "--inbound", default="Inbound: ",
+        help="Specify the log prefix used for inbound connections"
+    )
 
     return argumentParser.parse_args()
 
@@ -114,12 +122,23 @@ def main():
     inbound = outbound = []
 
     for entry in journal:
-        match = ip_regex.search(entry["MESSAGE"])
+        msg = entry["MESSAGE"]
 
-        # check if IPs were matched and if dest ip differs from broadcast
-        if match and match.group(2) != "255.255.255.255":
-            inbound += [match.group(1)]
-            outbound += [match.group(2)]
+        if msg.startswith(args.inbound):
+            # inbound traffic
+            match = ip_regex.search(msg)
+
+            if match:
+                # track inbound traffic's src IP
+                inbound += [match.group(1)]
+
+        if msg.startswith(args.outbound):
+            # outbound traffic
+            match = ip_regex.search(msg)
+
+            if match:
+                # track outbound traffic's dst IP
+                outbound += [match.group(2)]
 
     if args.verbose:
         print(f"Inbound Connections: {len(inbound)}")
