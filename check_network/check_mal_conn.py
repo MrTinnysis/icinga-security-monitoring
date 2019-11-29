@@ -132,7 +132,7 @@ def main():
                 # track inbound traffic's src IP
                 inbound += [match.group(1)]
 
-        if msg.startswith(args.outbound):
+        elif msg.startswith(args.outbound):
             # outbound traffic
             match = ip_regex.search(msg)
 
