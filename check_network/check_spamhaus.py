@@ -40,8 +40,8 @@ def ns_lookup(domain):
         print(f"UNKNOWN: Could not resolve domain name: {domain}")
         sys.exit(UNKNOWN)
 
-    ips += [ip for ip in ipv4]
-    ips += [ip for ip in ipv6]
+    ips += [ip.to_text() for ip in ipv4]
+    ips += [ip.to_text() for ip in ipv6]
     return ips
 
 
