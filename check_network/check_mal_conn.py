@@ -97,13 +97,7 @@ def main():
         print(args)
 
     # Get drop_list
-    # check if DROP and EDROP list are present and up-to-date
-    # if not: reload DROP and EDROP list (once per day)
-    #drop_list = get_drop_list()
     drop_list = DropList()
-
-    if args.verbose:
-        print(drop_list)
 
     # setup journal reader
     journal = JournalReader(args.journal_path)
@@ -127,9 +121,17 @@ def main():
             inbound += [match.group(1)]
             outbound += [match.group(2)]
 
+    if args.verbose:
+        print(f"Inbound Connections: {len(inbound)}")
+        print(f"Outbound Connections: {len(outbound)}")
+
     # filter ips by drop_list
     inbound = [ip for ip in inbound if drop_list.contains_ip(ip)]
     outbound = [ip for ip in outbound if drop_list.contains_ip(ip)]
+
+    if args.verbose:
+        print(f"Inbound Malicious: {len(inbound)}")
+        print(f"Outbound Malicious: {len(outbound)}")
 
     returnCode = OK
 
