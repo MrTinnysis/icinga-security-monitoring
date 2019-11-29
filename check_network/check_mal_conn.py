@@ -6,6 +6,7 @@ import sys
 import re
 import requests
 
+from ipaddress import ip_network, ip_address
 from datetime import date, timedelta
 from JournalReader import JournalReader
 
@@ -32,9 +33,8 @@ class DropList:
                 self.data = self._parse_drop_list()
 
     def contains_ip(self, ip):
-        for line in self.data:
-            network, netmask = line.split("/")
-        pass
+        ip = ip_address(ip)
+        return any(ip in network for network in self.data)
 
     def _retrieve_drop_list(self):
         # retrieve DROP and EDROP list
@@ -51,7 +51,7 @@ class DropList:
 
     def _parse_drop_list(self):
         with open(self.file, "r") as file:
-            return [line.split(" ; ")[0] for line in file if not line.startswith(";")]
+            return [ip_network(line.split(" ; ")[0]) for line in file if not line.startswith(";")]
 
     def __repr__(self):
         return self.data.__repr__()
@@ -80,7 +80,7 @@ def parse_args():
     )
     argumentParser.add_argument(
         "-p", '--period', metavar='NUMBER', default='1h', type=period,
-        help='check log of last period (default: "1h", format 1-99m/h/d)'
+        help='check log of last period (default: "30m", format 1-99m/h/d)'
     )
 
     return argumentParser.parse_args()
@@ -104,8 +104,6 @@ def main():
 
     if args.verbose:
         print(drop_list)
-
-    sys.exit(OK)
 
     # setup journal reader
     journal = JournalReader(args.journal_path)
