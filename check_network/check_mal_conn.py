@@ -27,7 +27,7 @@ class DropList:
                 timestamp = date.fromisoformat(f.readline()[2:-1])
 
             # check timestamp
-            if date.today() - timestamp > timedelta(days=1):
+            if date.today() - timestamp >= timedelta(days=1):
                 self.drop_list = self._retrieve_drop_list()
             else:
                 self.drop_list = self._parse_drop_list()
