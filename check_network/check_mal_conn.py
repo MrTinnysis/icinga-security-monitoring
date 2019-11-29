@@ -79,7 +79,7 @@ def parse_args():
         help='path to journal log folder'
     )
     argumentParser.add_argument(
-        "-p", '--period', metavar='NUMBER', default='1h', type=period,
+        "-p", '--period', metavar='NUMBER', default='30m', type=period,
         help='check log of last period (default: "30m", format 1-99m/h/d)'
     )
     argumentParser.add_argument(
