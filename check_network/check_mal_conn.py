@@ -18,7 +18,7 @@ UNKNOWN = 3
 
 
 class DropList:
-    def __init__(self, file="/tmp/drop_list.txt"):
+    def __init__(self, file):
         self.file = file
         if not os.path.isfile(self.file):
             self.data = self._retrieve_drop_list()
