@@ -43,7 +43,7 @@ class DropList:
 
         # write both lists into the file
         with open(self.file, "w+") as file:
-            file.write("; " + date.today().isoformat())
+            file.write("; " + date.today().isoformat() + "\n")
             file.write(drop)
             file.write(edrop)
 
