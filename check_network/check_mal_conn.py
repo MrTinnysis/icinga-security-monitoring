@@ -83,11 +83,11 @@ def parse_args():
         help='check log of last period (default: "30m", format 1-99m/h/d)'
     )
     argumentParser.add_argument(
-        "-o", "--outbound", default="Outbound: ",
+        "-o", "--outbound", required=True,
         help="Specify the log prefix used for outbound connections"
     )
     argumentParser.add_argument(
-        "-i", "--inbound", default="Inbound: ",
+        "-i", "--inbound", required=True,
         help="Specify the log prefix used for inbound connections"
     )
 
