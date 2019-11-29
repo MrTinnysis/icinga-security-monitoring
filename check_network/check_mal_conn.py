@@ -42,7 +42,7 @@ class DropList:
         edrop = requests.get("https://www.spamhaus.org/drop/edrop.txt").text
 
         # write both lists into the file
-        with open(self.file, "w+") as file:
+        with open(self.file, "w") as file:
             file.write("; " + date.today().isoformat() + "\n")
             file.write(drop)
             file.write(edrop)
