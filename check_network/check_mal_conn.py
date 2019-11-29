@@ -119,7 +119,8 @@ def main():
         r"SRC=((?:\d{1,3}\.){3}\d{1,3}) DST=((?:\d{1,3}\.){3}\d{1,3})")
 
     # retrieve entries from journal
-    inbound = outbound = []
+    inbound = []
+    outbound = []
 
     for entry in journal:
         msg = entry["MESSAGE"]
