@@ -21,20 +21,20 @@ class DropList:
     def __init__(self, file):
         self.file = file
         if not os.path.isfile(self.file):
-            self.data = self._retrieve_drop_list()
+            self.drop_list = self._retrieve_drop_list()
         else:
             with open(self.file, "r") as f:
                 timestamp = date.fromisoformat(f.readline()[2:-1])
 
             # check timestamp
             if date.today() - timestamp > timedelta(days=1):
-                self.data = self._retrieve_drop_list()
+                self.drop_list = self._retrieve_drop_list()
             else:
-                self.data = self._parse_drop_list()
+                self.drop_list = self._parse_drop_list()
 
     def contains_ip(self, ip):
         ip = ip_address(ip)
-        return any(ip in network for network in self.data)
+        return any(ip in network for network in self.drop_list)
 
     def _retrieve_drop_list(self):
         # retrieve DROP and EDROP list
