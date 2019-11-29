@@ -23,7 +23,7 @@ class DropList:
             self.data = self._retrieve_drop_list()
         else:
             with open(self.file, "r") as f:
-                timestamp = date.fromisoformat(f.readline()[2:])
+                timestamp = date.fromisoformat(f.readline()[2:-1])
 
             # check timestamp
             if date.today() - timestamp > timedelta(days=1):
