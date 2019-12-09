@@ -20,7 +20,7 @@ UNKNOWN = 3
 
 
 def period(string):
-    if not re.search("^\d{1,2}[dhm]$", string):
+    if not re.search(r"^\d{1,2}[dhm]$", string):
         msg = "%r is not a valid period" % string
         raise argparse.ArgumentTypeError(msg)
     return string

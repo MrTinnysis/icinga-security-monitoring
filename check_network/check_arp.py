@@ -5,6 +5,7 @@ import os
 import sys
 import re
 
+# pylint: disable=no-name-in-module
 from scapy.all import srp, conf, get_if_hwaddr, Ether, ARP, Route
 
 # monitoring plugin return codes

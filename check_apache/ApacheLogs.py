@@ -19,12 +19,15 @@ class ApacheLogParser:
         log_format_list = config.get("LogFormat", vhost=vhost)
         custom_log = config.get("CustomLog", vhost=vhost)
 
+        if not log_format_list:
+            raise ApacheLogParserException("No log format specified")
+
+        if not custom_log:
+            raise ApacheLogParserException("No custom log path specified")
+
         # convert format to list if only one format is configured
         if type(log_format_list) != list:
             log_format_list = [log_format_list]
-
-        if not log_format_list:
-            raise ApacheLogParserException("No log format specified")
 
         # CustomLog definition consists of path and either "nickname" or format string
         match = re.match("(.+?) (.+)", custom_log)

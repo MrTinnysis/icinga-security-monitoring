@@ -10,6 +10,7 @@ import re
 # https://scapy.readthedocs.io/en/latest/usage.html#identifying-rogue-dhcp-servers-on-your-lan
 #
 
+# pylint: disable=no-name-in-module
 from scapy.all import srp, Ether, IP, UDP, BOOTP, DHCP, conf, get_if_raw_hwaddr
 
 # monitoring plugin return codes
