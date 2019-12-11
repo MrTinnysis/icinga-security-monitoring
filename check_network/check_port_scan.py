@@ -5,6 +5,7 @@ import sys
 import re
 import socket
 
+from pprint import pprint
 # pylint: disable=import-error
 from JournalReader import JournalReader
 
@@ -103,8 +104,8 @@ def main():
             port_set.add(dst_port)
 
     if args.verbose:
+        pprint(ip_dict)
         print(f"Max Ports connected: {max((len(ports) for ports in ip_dict.values()), default=0)}")
-        print(ip_dict)
 
     returnCode = OK
 
