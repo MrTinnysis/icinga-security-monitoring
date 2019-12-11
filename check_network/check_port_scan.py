@@ -44,10 +44,10 @@ def parse_args():
         "-t", "--threshold", default=30, type=int,
         help=""
     )
-    argumentParser.add_argument(
-        "-i", "--inbound-prefix", required=True,
-        help=""
-    )
+    # argumentParser.add_argument(
+    #     "-i", "--inbound-prefix", required=True,
+    #     help=""
+    # )
 
     return argumentParser.parse_args()
 
