@@ -132,7 +132,7 @@ def main():
 
             if match:
                 # track inbound traffic's src IP
-                inbound += [match.group(1)]
+                inbound += {match.group(1)}
 
         elif msg.startswith(args.outbound):
             # outbound traffic
@@ -140,7 +140,7 @@ def main():
 
             if match:
                 # track outbound traffic's dst IP
-                outbound += [match.group(2)]
+                outbound += {match.group(2)}
 
     if args.verbose:
         print(f"Inbound Connections: {len(inbound)}")
