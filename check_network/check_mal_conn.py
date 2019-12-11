@@ -79,14 +79,6 @@ def parse_args():
         "-p", '--period', metavar='NUMBER', default='30m', type=period,
         help='check log of last period (default: "30m", format 1-99m/h/d)'
     )
-    # argumentParser.add_argument(
-    #     "-o", "--outbound", default=None,
-    #     help="Specify the log prefix used for outbound connections"
-    # )
-    # argumentParser.add_argument(
-    #     "-i", "--inbound", default=None,
-    #     help="Specify the log prefix used for inbound connections"
-    # )
     argumentParser.add_argument(
         "-d", "--drop-list", default="/tmp/drop_list.txt",
         help="Specify the location where the droplist should be cached"
@@ -133,66 +125,19 @@ def main():
             ip_set.add(match.group(2))
 
     if args.verbose:
-        print(f"Num IPs: {len(ip_set)}")
+        print(f"#IPs: {len(ip_set)}")
 
     # filter ips by droplist (set comprehension)
     ip_set = {ip for ip in ip_set if drop_list.contains_ip(ip)}
 
     if args.verbose:
-        print(f"Num IPs after filtering: {len(ip_set)}")
+        print(f"#Malicious IPs: {len(ip_set)}")
 
     returnCode = OK
 
     if len(ip_set) > 0:
         print(f"CRITICAL: Malicious IPv4 traffic detected: {ip_set}")
         returnCode = CRITICAL
-
-    # # retrieve entries from journal
-    # inbound = set()
-    # outbound = set()
-
-    # for entry in journal:
-    #     msg = entry["MESSAGE"]
-
-    #     if msg.startswith(args.inbound):
-    #         # inbound traffic
-    #         match = ip_regex.search(msg)
-
-    #         if match:
-    #             # track inbound traffic's src IP
-    #             inbound.add(match.group(1))
-
-    #     elif msg.startswith(args.outbound):
-    #         # outbound traffic
-    #         match = ip_regex.search(msg)
-
-    #         if match:
-    #             # track outbound traffic's dst IP
-    #             outbound.add(match.group(2))
-
-    # if args.verbose:
-    #     print(f"Inbound Connections: {len(inbound)}")
-    #     print(f"Outbound Connections: {len(outbound)}")
-
-    # # filter ips by drop_list
-    # inbound = [ip for ip in inbound if drop_list.contains_ip(ip)]
-    # outbound = [ip for ip in outbound if drop_list.contains_ip(ip)]
-
-    # if args.verbose:
-    #     print(f"Inbound Malicious: {len(inbound)}")
-    #     print(f"Outbound Malicious: {len(outbound)}")
-
-    # returnCode = OK
-
-    # if len(inbound) > 0:
-    #     returnCode = CRITICAL
-    #     print(
-    #         f"CRITICAL: Inbound connections from malicious IPs detected: {inbound}")
-
-    # if len(outbound) > 0:
-    #     returnCode = CRITICAL
-    #     print(
-    #         f"CRITICAL: Outbound connections to malicious IPs detected: {outbound}")
 
     if returnCode == OK:
         print("OK: No malicious IPv4 traffic detected.")
