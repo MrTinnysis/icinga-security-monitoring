@@ -5,7 +5,6 @@ import sys
 import re
 import socket
 
-from pprint import pprint
 # pylint: disable=import-error
 from JournalReader import JournalReader
 
@@ -104,7 +103,6 @@ def main():
             port_set.add(dst_port)
 
     if args.verbose:
-        pprint(ip_dict)
         print(f"Max Ports connected: {max((len(ports) for ports in ip_dict.values()), default=0)}")
 
     returnCode = OK
@@ -112,7 +110,7 @@ def main():
     # process each ip
     for ip, ports in ip_dict.items():
         # compare number of dst ports with threshold
-        if len(ports) > args.threshold:
+        if len(ports) >= args.threshold:
             print(f"CRITICAL: Portscan detected: {ip}")
             returnCode = CRITICAL
 
