@@ -104,6 +104,7 @@ def main():
 
     if args.verbose:
         print(f"Max Ports connected: {max((len(ports) for ports in ip_dict.values()), default=0)}")
+        print(ip_dict)
 
     returnCode = OK
 
