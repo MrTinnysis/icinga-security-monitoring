@@ -103,7 +103,7 @@ def main():
             port_set.add(dst_port)
 
     if args.verbose:
-        print(f"Max Ports connected: {max((len(ports) for ports in ip_dict.values()), 0)}")
+        print(f"Max Ports connected: {max((len(ports) for ports in ip_dict.values()), default=0)}")
 
     returnCode = OK
 
