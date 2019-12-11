@@ -44,10 +44,6 @@ def parse_args():
         "-t", "--threshold", default=30, type=int,
         help=""
     )
-    # argumentParser.add_argument(
-    #     "-i", "--inbound-prefix", required=True,
-    #     help=""
-    # )
 
     return argumentParser.parse_args()
 
@@ -107,7 +103,7 @@ def main():
             port_set.add(dst_port)
 
     if args.verbose:
-        print(ip_dict)
+        print(f"Max Ports connected: {max((len(ports) for ports in ip_dict.values()), 0)}")
 
     returnCode = OK
 
