@@ -112,7 +112,7 @@ def main():
     for ip, ports in ip_dict.items():
         # compare number of dst ports with threshold
         if len(ports) >= args.threshold:
-            print(f"CRITICAL: Portscan detected: {ip}")
+            print(f"CRITICAL: Portscan detected: {ip} ({len(ports)})")
             returnCode = CRITICAL
 
     if returnCode == OK:
