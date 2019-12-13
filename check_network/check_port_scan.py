@@ -42,7 +42,8 @@ def parse_args():
     )
     argumentParser.add_argument(
         "-t", "--threshold", default=30, type=int,
-        help=""
+        help="specify the number of different ports that must be accessed within the given period \
+            to qualify as port scan"
     )
 
     return argumentParser.parse_args()
