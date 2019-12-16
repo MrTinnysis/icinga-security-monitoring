@@ -103,20 +103,20 @@ def main():
     # icc not disabled -> check if there are any containers on the default bridge
 
     # get all containers that run on the default bridge (if any)
-    if "Containers" in default_bridge:
-        containers = default_bridge["Containers"]
+    containers = default_bridge.get("Containers", [])
 
-        if len(containers) > 1:
-            print(
-                f"CRITICAL: {len(containers)} containers running on the default bridge with icc enabled!")
-            sys.exit(CRITICAL)
+    if len(containers) > 1:
+        print(
+            f"CRITICAL: {len(containers)} containers running on the default bridge with icc enabled!")
+        sys.exit(CRITICAL)
 
-        if len(containers) == 1:
-            print(f"WARNING: 1 container running on the default bridge with icc enabled!")
-            sys.exit(WARNING)
+    elif len(containers) == 1:
+        print(f"WARNING: 1 container running on the default bridge with icc enabled!")
+        sys.exit(WARNING)
 
-    print(f"OK: There are no containers running on the default bridge")
-    sys.exit(OK)
+    else:
+        print(f"OK: There are no containers running on the default bridge")
+        sys.exit(OK)
 
 
 if __name__ == "__main__":
