@@ -4,7 +4,6 @@ import argparse
 import sys
 import subprocess
 import json
-from pprint import pprint
 
 
 # monitoring plugin return codes
