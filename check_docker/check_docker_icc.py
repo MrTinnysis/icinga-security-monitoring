@@ -36,6 +36,7 @@ def get_docker_networks():
         print(f"UNKNOWN: Unable to retrieve docker network list")
         sys.exit(UNKNOWN)
 
+    # remove last (empty) newline before returning list
     return networks.split("\n")[:-1]
 
 
@@ -49,6 +50,7 @@ def inspect_docker_networks(networks: list):
             f"UNKNOWN: Unable to retrieve network configuration")
         sys.exit(UNKNOWN)
 
+    # parse json output into python datastructures before for further processing
     return json.loads(config)
 
 
