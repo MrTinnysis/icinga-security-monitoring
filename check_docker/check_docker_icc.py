@@ -90,9 +90,8 @@ def main():
     default_bridge = get_default_bridge(docker_networks)
 
     if args.verbose:
-        # print("default_bridge:")
-        # pprint(default_bridge)
-        print(f"default_bridge: {default_bridge}")
+        print("default_bridge:")
+        pprint(default_bridge)
 
     # check if icc is enabled
     enable_icc = default_bridge["Options"]["com.docker.network.bridge.enable_icc"]
