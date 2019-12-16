@@ -26,7 +26,7 @@ def parse_args():
     return argumentParser.parse_args()
 
 
-def get_docker_cfg_path(filename):
+def get_docker_cfg_path(filename: str) -> str:
     cmd = f"systemctl show -p FragmentPath {filename}"
 
     try:
@@ -36,8 +36,8 @@ def get_docker_cfg_path(filename):
             f"UNKNOWN: Failed to retrieve docker config file path {filename}")
         sys.exit(UNKNOWN)
 
-    # split KEY=value pairs and return value
-    return path.split("=")[1]
+    # split KEY=value pairs and return value, also remove trailing newline char (\n)
+    return path.split("=")[1][:-1]
 
 
 def main() -> None:
@@ -52,7 +52,7 @@ def main() -> None:
 
     # get docker.service and docker.socket paths
     docker_srv = get_docker_cfg_path("docker.service")
-    docker_soc = get_docker_cfg_path("docer.socket")
+    docker_soc = get_docker_cfg_path("docker.socket")
 
     if args.verbose:
         print(f"docker_service_path: {docker_srv}")
