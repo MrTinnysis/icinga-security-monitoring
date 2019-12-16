@@ -2,9 +2,8 @@
 
 import argparse
 import sys
-import re
 import subprocess
-import os
+import json
 
 
 # monitoring plugin return codes
@@ -30,16 +29,26 @@ def parse_args():
 def get_docker_networks():
     cmd = "docker network ls --quiet"
 
-    # pylint: disable=no-member
-    print(f"user_id: {os.geteuid()}")
-
     try:
         networks = subprocess.check_output(cmd, shell=True).decode("utf-8")
     except subprocess.CalledProcessError:
         print(f"UNKNOWN: Unable to retrieve docker network list")
         sys.exit(UNKNOWN)
 
-    return networks.split("\n")
+    return networks.split("\n")[:-1]
+
+
+def inspect_docker_network(network):
+    cmd = f"docker network inspect {network}"
+
+    try:
+        config = subprocess.check_output(cmd, shell=True).decode("utf-8")
+    except subprocess.CalledProcessError:
+        print(
+            f"UNKNOWN: Unable to retrieve network configuration (net_id: {network})")
+        sys.exit(UNKNOWN)
+
+    return json.load(config)[0]
 
 
 def main():
@@ -56,6 +65,10 @@ def main():
 
     if args.verbose:
         print(f"docker_networks: {docker_networks}")
+
+    for network in docker_networks:
+        network_config = inspect_docker_network(network)
+        print(network_config)
 
 
 if __name__ == "__main__":
