@@ -48,7 +48,7 @@ def inspect_docker_network(network):
             f"UNKNOWN: Unable to retrieve network configuration (net_id: {network})")
         sys.exit(UNKNOWN)
 
-    return json.load(config)[0]
+    return json.loads(config)[0]
 
 
 def main():
