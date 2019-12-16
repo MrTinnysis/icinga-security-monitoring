@@ -4,6 +4,7 @@ import argparse
 import sys
 import re
 import subprocess
+import os
 
 
 # monitoring plugin return codes
@@ -28,6 +29,9 @@ def parse_args():
 
 def get_docker_networks():
     cmd = "docker network ls --quiet"
+
+    # pylint: disable=no-member
+    print(f"user_id: {os.geteuid()}")
 
     try:
         networks = subprocess.check_output(cmd, shell=True).decode("utf-8")
