@@ -27,6 +27,7 @@ def parse_args():
 
 
 def get_docker_cfg_path(filename: str) -> str:
+    # cmd used to retrieve docker configuration
     cmd = f"systemctl show -p FragmentPath {filename}"
 
     try:
@@ -38,6 +39,10 @@ def get_docker_cfg_path(filename: str) -> str:
 
     # split KEY=value pairs and return value, also remove trailing newline char (\n)
     return path.split("=")[1][:-1]
+
+
+def check_file_owner_permissions(path: str) -> bool:
+    return False
 
 
 def main() -> None:
@@ -57,6 +62,21 @@ def main() -> None:
     if args.verbose:
         print(f"docker_service_path: {docker_srv}")
         print(f"docker_socket_path: {docker_soc}")
+
+    returnCode = OK
+
+    if os.path.isfile(docker_srv) and not check_file_owner_permissions(docker_srv):
+        print(f"CRITICAL: 'docker.service' file permission missmatch")
+        returnCode = CRITICAL
+
+    if os.path.isfile(docker_soc) and not check_file_owner_permissions(docker_soc):
+        print(f"CRITICAL: 'docker.socket' file permission missmatch")
+        returnCode = CRITICAL
+
+    if returnCode == OK:
+        print(f"OK: docker file permissions set correctly")
+
+    sys.exit(OK)
 
 
 if __name__ == "__main__":
