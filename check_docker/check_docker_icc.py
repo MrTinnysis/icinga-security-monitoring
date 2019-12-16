@@ -4,6 +4,7 @@ import argparse
 import sys
 import subprocess
 import json
+from pprint import pprint
 
 
 # monitoring plugin return codes
@@ -87,6 +88,11 @@ def main():
 
     # get the default bridge
     default_bridge = get_default_bridge(docker_networks)
+
+    if args.verbose:
+        print("default_bridge:")
+        pprint(default_bridge)
+        # print(f"default_bridge: {default_bridge}")
 
     # check if icc is enabled
     enable_icc = default_bridge["Options"]["com.docker.network.bridge.enable_icc"]
