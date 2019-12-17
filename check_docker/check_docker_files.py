@@ -42,7 +42,28 @@ def get_docker_cfg_path(filename: str) -> str:
 
 
 def check_file_owner_permissions(path: str) -> bool:
-    return False
+    stats = os.stat(path)
+
+    # check if user and group is set to root
+    if stats.st_uid != 0 or stats.st_gid != 0:
+        return False
+
+    # get permissions from file stats
+    permissions = stats.st_mode
+
+    # check if owner has execute permission
+    if permissions & stat.S_IXUSR:
+        return False
+
+    # check if group has execute or write permission
+    if permissions & stat.S_IWGRP or permissions & stat.S_IXGRP:
+        return False
+
+    # check if others have execute or write permission
+    if permissions & stat.S_IWOTH or permissions & stat.S_IXOTH:
+        return False
+
+    return True
 
 
 def main() -> None:
@@ -66,11 +87,11 @@ def main() -> None:
     returnCode = OK
 
     if os.path.isfile(docker_srv) and not check_file_owner_permissions(docker_srv):
-        print(f"CRITICAL: 'docker.service' file permission missmatch")
+        print(f"CRITICAL: 'docker.service' file owner/permission missmatch")
         returnCode = CRITICAL
 
     if os.path.isfile(docker_soc) and not check_file_owner_permissions(docker_soc):
-        print(f"CRITICAL: 'docker.socket' file permission missmatch")
+        print(f"CRITICAL: 'docker.socket' file owner/permission missmatch")
         returnCode = CRITICAL
 
     if returnCode == OK:
