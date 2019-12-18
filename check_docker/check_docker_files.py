@@ -5,6 +5,8 @@ import sys
 import subprocess
 import stat
 import os
+import pwd
+import grp
 
 # monitoring plugin return codes
 OK = 0
@@ -41,7 +43,33 @@ def get_docker_cfg_path(filename: str) -> str:
     return path.split("=")[1][:-1]
 
 
-def check_file_owner_permissions(path: str) -> bool:
+def check_file_owner(path: str, owner_group: str) -> bool:
+    # parse owner and gorup, format: owner:group
+    owner, group = owner_group.split(":")
+
+    # get file stats
+    stats = os.stat(path)
+
+    # convert owner and group names to corresponding ids
+    user_id = pwd.getpwnam(owner).pw_uid
+    group_id = grp.getgrnam(group).gr_gid
+
+    # check user and group
+    if stats.st_uid != user_id or stats.st_gid != group_id:
+        return False
+
+    return True
+
+
+def check_file_permissions(path: str, permissions: int) -> bool:
+    # get file stats
+    stats = os.stat(path)
+
+    user_perm = permissions & stat.S_IRWXU
+    print(f"user_perm: {user_perm}")
+
+
+def check_file_owner_and_permissions(path: str) -> bool:
     stats = os.stat(path)
 
     # check if user and group is set to root
@@ -86,11 +114,13 @@ def main() -> None:
 
     returnCode = OK
 
-    if os.path.isfile(docker_srv) and not check_file_owner_permissions(docker_srv):
+    check_file_permissions(docker_srv, 644)
+
+    if os.path.isfile(docker_srv) and not check_file_owner_and_permissions(docker_srv):
         print(f"CRITICAL: 'docker.service' file owner/permission missmatch")
         returnCode = CRITICAL
 
-    if os.path.isfile(docker_soc) and not check_file_owner_permissions(docker_soc):
+    if os.path.isfile(docker_soc) and not check_file_owner_and_permissions(docker_soc):
         print(f"CRITICAL: 'docker.socket' file owner/permission missmatch")
         returnCode = CRITICAL
 
