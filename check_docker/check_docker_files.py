@@ -81,13 +81,19 @@ def check_file_permissions(path: str, permissions: int) -> bool:
     owner_perm, group_perm, other_perm = [
         int(digit) for digit in str(permissions)]
 
-    print(stats.st_mode & stat.S_IRWXU)
+    # shift owner and gorup permissions to match the masked values from os.stat
+    owner_perm <<= 6
+    group_perm <<= 3
+
+    # check owner permissions
     if stats.st_mode & stat.S_IRWXU != owner_perm:
         return False
 
+    # check group permissions
     if stats.st_mode & stat.S_IRWXG != group_perm:
         return False
 
+    # check other permissions
     if stats.st_mode & stat.S_IRWXO != other_perm:
         return False
 
