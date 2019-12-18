@@ -65,10 +65,12 @@ def check_file_permissions(path: str, permissions: int) -> bool:
     # get file stats
     stats = os.stat(path)
 
-    user_perm = permissions & stat.S_IRWXU
-    print(f"user_perm: {user_perm}")
+    # split permissions into owner, group and other
+    owner_perm, group_perm, other_perm = str(permissions).split("")
 
-    print(f"owner_perm: {stats.st_mode & stat.S_IRWXU}")
+    print(owner_perm)
+    print(group_perm)
+    print(other_perm)
 
 
 def check_file_owner_and_permissions(path: str) -> bool:
