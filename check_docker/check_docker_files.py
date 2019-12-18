@@ -190,7 +190,8 @@ def main() -> None:
             returnCode = CRITICAL
 
         if not check_file_permissions(args.tls_key, 400):
-            print(f"CRITICAL: TLS Key File permission violation: should be (r--------)")
+            print(
+                f"CRITICAL: TLS Key File permission violation: should be 400 (r--------)")
             returnCode = CRITICAL
 
     # check /var/run/docker.sock file
