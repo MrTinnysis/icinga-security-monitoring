@@ -81,6 +81,7 @@ def check_file_permissions(path: str, permissions: int) -> bool:
     owner_perm, group_perm, other_perm = [
         int(digit) for digit in str(permissions)]
 
+    print(stats.st_mode & stat.S_IRWXU)
     if stats.st_mode & stat.S_IRWXU != owner_perm:
         return False
 
