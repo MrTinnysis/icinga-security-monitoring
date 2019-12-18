@@ -159,7 +159,7 @@ def main() -> None:
             returnCode = CRITICAL
 
     # check TLS CA Cert
-    if os.path.isfile(args.tls_ca_cert):
+    if args.tls_ca_cert and os.path.isfile(args.tls_ca_cert):
 
         if not check_file_owner(args.tls_ca_cert, "root:root"):
             print(f"CRITICAL: TLS CA Cert file owner violation: should be root:root")
@@ -171,7 +171,7 @@ def main() -> None:
             returnCode = CRITICAL
 
     # check TLS Cert
-    if os.path.isfile(args.tls_cert):
+    if args.tls_cert and os.path.isfile(args.tls_cert):
 
         if not check_file_owner(args.tls_cert, "root:root"):
             print(f"CRITICAL: TLS Cert file owner violation: should be root:root")
@@ -183,7 +183,7 @@ def main() -> None:
             returnCode = CRITICAL
 
     # check TLS key file
-    if os.path.isfile(args.tls_key):
+    if args.tls_key and os.path.isfile(args.tls_key):
 
         if not check_file_owner(args.tls_key, "root:root"):
             print(f"CRITICAL: TLS Key File owner violation: should be root:root")
