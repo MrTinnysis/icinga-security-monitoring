@@ -66,7 +66,8 @@ def check_file_permissions(path: str, permissions: int) -> bool:
     stats = os.stat(path)
 
     # split permissions into owner, group and other
-    owner_perm, group_perm, other_perm = str(permissions).split("")
+    owner_perm, group_perm, other_perm = [
+        int(digit) for digit in str(permissions)]
 
     print(owner_perm)
     print(group_perm)
