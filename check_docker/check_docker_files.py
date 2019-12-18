@@ -68,6 +68,8 @@ def check_file_permissions(path: str, permissions: int) -> bool:
     user_perm = permissions & stat.S_IRWXU
     print(f"user_perm: {user_perm}")
 
+    print(f"owner_perm: {stats.st_mode & stat.S_IRWXU}")
+
 
 def check_file_owner_and_permissions(path: str) -> bool:
     stats = os.stat(path)
