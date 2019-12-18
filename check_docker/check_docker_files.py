@@ -124,24 +124,26 @@ def main() -> None:
     if os.path.isfile(docker_srv):
 
         if not check_file_owner(docker_srv, "root:root"):
-            print(f"CRITICAL: 'docker.service' file owner violation: should be root:root")
+            print(
+                f"CRITICAL: '{docker_srv}' file owner violation: should be root:root")
             returnCode = CRITICAL
 
         if not check_file_permissions(docker_srv, 644):
             print(
-                f"CRITICAL: 'docker.service' file permission violation: should be 644 (rw-r--r--)")
+                f"CRITICAL: '{docker_srv}' file permission violation: should be 644 (rw-r--r--)")
             returnCode = CRITICAL
 
     # check docker.socket file
     if os.path.isfile(docker_soc):
 
         if not check_file_owner(docker_soc, "root:root"):
-            print(f"CRITICAL: 'docker.socket' file owner violation: should be root:root")
+            print(
+                f"CRITICAL: '{docker_soc}' owner violation: should be root:root")
             returnCode = CRITICAL
 
         if not check_file_permissions(docker_soc, 644):
             print(
-                f"CRITICAL: 'docker.socket' file permission violation: should be 644 (rw-r--r--)")
+                f"CRITICAL: '{docker_soc}' permission violation: should be 644 (rw-r--r--)")
             returnCode = CRITICAL
 
     # check /etc/docker dir
@@ -162,36 +164,39 @@ def main() -> None:
     if args.tls_ca_cert and os.path.isfile(args.tls_ca_cert):
 
         if not check_file_owner(args.tls_ca_cert, "root:root"):
-            print(f"CRITICAL: TLS CA Cert file owner violation: should be root:root")
+            print(
+                f"CRITICAL: '{args.tls_ca_cert}' owner violation: should be root:root")
             returnCode = CRITICAL
 
         if not check_file_permissions(args.tls_ca_cert, 444):
             print(
-                f"CRITICAL: TLS CA Cert file permission violation: should be 444 (r--r--r--)")
+                f"CRITICAL: '{args.tls_ca_cert}' permission violation: should be 444 (r--r--r--)")
             returnCode = CRITICAL
 
     # check TLS Cert
     if args.tls_cert and os.path.isfile(args.tls_cert):
 
         if not check_file_owner(args.tls_cert, "root:root"):
-            print(f"CRITICAL: TLS Cert file owner violation: should be root:root")
+            print(
+                f"CRITICAL: '{args.tls_cert}' owner violation: should be root:root")
             returnCode = CRITICAL
 
         if not check_file_permissions(args.tls_cert, 444):
             print(
-                f"CRITICAL: TLS Cert file permission violation: should be 444 (r--r--r--)")
+                f"CRITICAL: '{args.tls_cert}' permission violation: should be 444 (r--r--r--)")
             returnCode = CRITICAL
 
     # check TLS key file
     if args.tls_key and os.path.isfile(args.tls_key):
 
         if not check_file_owner(args.tls_key, "root:root"):
-            print(f"CRITICAL: TLS Key File owner violation: should be root:root")
+            print(
+                f"CRITICAL: '{args.tls_key}' owner violation: should be root:root")
             returnCode = CRITICAL
 
         if not check_file_permissions(args.tls_key, 400):
             print(
-                f"CRITICAL: TLS Key File permission violation: should be 400 (r--------)")
+                f"CRITICAL: '{args.tls_key}' permission violation: should be 400 (r--------)")
             returnCode = CRITICAL
 
     # check /var/run/docker.sock file
