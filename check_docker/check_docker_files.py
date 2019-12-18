@@ -24,6 +24,18 @@ def parse_args():
         '-v', '--verbose', nargs="?", const=True, default=False,
         help='verbose output'
     )
+    argumentParser.add_argument(
+        "--tls-ca-cert", default=None,
+        help="specify the path to the TLS CA Certificate file (docker CLI option: --tlscacert)"
+    )
+    argumentParser.add_argument(
+        "--tls-cert", default=None,
+        help="specify the path to the TLS Server Certificate file (docker CLI option: --tlscert)"
+    )
+    argumentParser.add_argument(
+        "--tls-key", default="/etc/docker/key.json",
+        help="specify the path to the TLS Key file (docker CLI option: --tlskey)"
+    )
 
     return argumentParser.parse_args()
 
@@ -69,31 +81,13 @@ def check_file_permissions(path: str, permissions: int) -> bool:
     owner_perm, group_perm, other_perm = [
         int(digit) for digit in str(permissions)]
 
-    print(owner_perm)
-    print(group_perm)
-    print(other_perm)
-
-
-def check_file_owner_and_permissions(path: str) -> bool:
-    stats = os.stat(path)
-
-    # check if user and group is set to root
-    if stats.st_uid != 0 or stats.st_gid != 0:
+    if stats.st_mode & stat.S_IRWXU != owner_perm:
         return False
 
-    # get permissions from file stats
-    permissions = stats.st_mode
-
-    # check if owner has execute permission
-    if permissions & stat.S_IXUSR:
+    if stats.st_mode & stat.S_IRWXG != group_perm:
         return False
 
-    # check if group has execute or write permission
-    if permissions & stat.S_IWGRP or permissions & stat.S_IXGRP:
-        return False
-
-    # check if others have execute or write permission
-    if permissions & stat.S_IWOTH or permissions & stat.S_IXOTH:
+    if stats.st_mode & stat.S_IRWXO != other_perm:
         return False
 
     return True
@@ -119,15 +113,134 @@ def main() -> None:
 
     returnCode = OK
 
-    check_file_permissions(docker_srv, 644)
+    # check docker.service file
+    if os.path.isfile(docker_srv):
 
-    if os.path.isfile(docker_srv) and not check_file_owner_and_permissions(docker_srv):
-        print(f"CRITICAL: 'docker.service' file owner/permission missmatch")
-        returnCode = CRITICAL
+        if not check_file_owner(docker_srv, "root:root"):
+            print(f"CRITICAL: 'docker.service' file owner violation: should be root:root")
+            returnCode = CRITICAL
 
-    if os.path.isfile(docker_soc) and not check_file_owner_and_permissions(docker_soc):
-        print(f"CRITICAL: 'docker.socket' file owner/permission missmatch")
-        returnCode = CRITICAL
+        if not check_file_permissions(docker_srv, 644):
+            print(
+                f"CRITICAL: 'docker.service' file permission violation: should be 644 (rw-r--r--)")
+            returnCode = CRITICAL
+
+    # check docker.socket file
+    if os.path.isfile(docker_soc):
+
+        if not check_file_owner(docker_soc, "root:root"):
+            print(f"CRITICAL: 'docker.socket' file owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(docker_soc, 644):
+            print(
+                f"CRITICAL: 'docker.socket' file permission violation: should be 644 (rw-r--r--)")
+            returnCode = CRITICAL
+
+    # check /etc/docker dir
+    etc_docker = "/etc_docker"
+    if os.path.isdir(etc_docker):
+
+        if not check_file_owner(etc_docker, "root:root"):
+            print(
+                f"CRITICAL: '{etc_docker}' directory owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(etc_docker, 755):
+            print(
+                f"CRITICAL: '{etc_docker}' directory permission violation: should be 755 (rwxr-xr-x")
+            returnCode = CRITICAL
+
+    # check TLS CA Cert
+    if os.path.isfile(args.tls_ca_cert):
+
+        if not check_file_owner(args.tls_ca_cert, "root:root"):
+            print(f"CRITICAL: TLS CA Cert file owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(args.tls_ca_cert, 444):
+            print(
+                f"CRITICAL: TLS CA Cert file permission violation: should be 444 (r--r--r--)")
+            returnCode = CRITICAL
+
+    # check TLS Cert
+    if os.path.isfile(args.tls_cert):
+
+        if not check_file_owner(args.tls_cert, "root:root"):
+            print(f"CRITICAL: TLS Cert file owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(args.tls_cert, 444):
+            print(
+                f"CRITICAL: TLS Cert file permission violation: should be 444 (r--r--r--)")
+            returnCode = CRITICAL
+
+    # check TLS key file
+    if os.path.isfile(args.tls_key):
+
+        if not check_file_owner(args.tls_key, "root:root"):
+            print(f"CRITICAL: TLS Key File owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(args.tls_key, 400):
+            print(f"CRITICAL: TLS Key File permission violation: should be (r--------)")
+            returnCode = CRITICAL
+
+    # check /var/run/docker.sock file
+    docker_sock = "/var/run/docker.sock"
+    if os.path.isfile(docker_sock):
+
+        if not check_file_owner(docker_sock, "root:docker"):
+            print(
+                f"CRITICAL: '{docker_sock}' owner violation: should be root:docker")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(docker_sock, 660):
+            print(
+                f"CRITICAL: '{docker_sock}' permission violation: should be 660 (rw-rw----)")
+            returnCode = CRITICAL
+
+    # check /etc/docker/daemon.json
+    docker_daemon = "/etc/docker/daemon.json"
+    if os.path.isfile(docker_daemon):
+
+        if not check_file_owner(docker_daemon, "root:root"):
+            print(
+                f"CRITICAL: '{docker_daemon}' owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(docker_daemon, 644):
+            print(
+                f"CRITICAL: '{docker_daemon}' permission violation: should be 644 (rw-r--r--)")
+            returnCode = CRITICAL
+
+    # check /etc/default/docker
+    default_docker = "/etc/default/docker"
+    if os.path.isfile(default_docker):
+
+        if not check_file_owner(default_docker, "root:root"):
+            print(
+                f"CRITICAL: '{default_docker}' owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(default_docker, 644):
+            print(
+                f"CRITICAL: '{default_docker}' permission violation: should be 644 (rw-r--r--)")
+            returnCode = CRITICAL
+
+    # check /etc/sysconfig/docker
+    sysconfig_docker = "/etc/sysconfig/docker"
+    if os.path.isfile(sysconfig_docker):
+
+        if not check_file_owner(sysconfig_docker, "root:root"):
+            print(
+                f"CRITICAL: '{sysconfig_docker}' owner violation: should be root:root")
+            returnCode = CRITICAL
+
+        if not check_file_permissions(sysconfig_docker, 644):
+            print(
+                f"CRITICAL: '{sysconfig_docker}' permission violation: should be 644 (rw-r--r--)")
+            returnCode = CRITICAL
 
     if returnCode == OK:
         print(f"OK: docker file permissions set correctly")
