@@ -75,7 +75,7 @@ def main() -> None:
 
     # retrieve container configurations and remove whitelisted containers from list
     docker_container_configs = [cfg for cfg in inspect_docker_containers(
-        docker_containers) if cfg.get("Name") not in args.whitelist]
+        docker_containers) if cfg.get("Name")[1:] not in args.whitelist]
 
     returnCode = OK
 
