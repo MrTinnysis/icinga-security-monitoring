@@ -24,7 +24,7 @@ def parse_args() -> Set:
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-w", "--whitelist", nargs="+", default=[], type=list,
+        "-w", "--whitelist", nargs="+", default=[], type=str,
         help="specify containers by name that should be ignored by this check"
     )
 
