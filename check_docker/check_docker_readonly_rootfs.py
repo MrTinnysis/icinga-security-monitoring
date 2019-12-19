@@ -98,7 +98,7 @@ def main() -> None:
                 returnCode = CRITICAL
 
     if returnCode == OK:
-        print(f"OK: All 'no-new-privileges' flags set correctly")
+        print(f"OK: All 'ReadonlyRootfs' flags set correctly")
 
     sys.exit(returnCode)
 
