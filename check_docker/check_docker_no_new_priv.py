@@ -92,9 +92,9 @@ def main() -> None:
                 f"Container '{container_name}': security_opts: {security_options}")
 
         # check if security options contain the 'no-new-privileges' flag
-        if not security_options or security_options == "null" or "no-new-privileges:true" not in security_options:
+        if not security_options or "no-new-privileges:true" not in security_options:
             print(
-                f"CRITICAL: Missing no-new-privileges flag on container '{container_name}'")
+                f"CRITICAL: Missing 'no-new-privileges' flag on container '{container_name}'")
             returnCode = CRITICAL
 
     if returnCode == OK:
