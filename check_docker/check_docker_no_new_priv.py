@@ -84,8 +84,8 @@ def main() -> None:
         security_options = container_cfg.get(
             "HostConfig", {}).get("SecurityOpt", None)
 
-        # get container name
-        container_name = container_cfg.get("Name")
+        # get container name (remove leading "/")
+        container_name = container_cfg.get("Name")[1:]
 
         if args.verbose:
             print(

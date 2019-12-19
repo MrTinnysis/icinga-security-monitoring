@@ -84,8 +84,8 @@ def main() -> None:
         readonly_rootfs = container_cfg.get(
             "HostConfig", {}).get("ReadonlyRootfs", False)
 
-        # get container name
-        container_name = container_cfg.get("Name")
+        # get container name (remove leading "/")
+        container_name = container_cfg.get("Name")[1:]
 
         if args.verbose:
             print(
