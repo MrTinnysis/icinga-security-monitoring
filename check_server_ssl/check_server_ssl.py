@@ -40,7 +40,7 @@ def main():
 
     # defaults
     returnCode = UNKNOWN
-    grading = {'A++': 0, 'A+': 1, 'A': 2, 'B': 3, 'C': 4, 'D': 5, 'E': 6, 'F': 7, 'T': 9}
+    grading = {'A+': 0, 'A': 1, 'A-': 2, 'B': 3, 'C': 4, 'D': 5, 'E': 6, 'F': 7, 'T': 9, 'M': 9}
     warningCount = 0
     criticalCount = 0
     status = ''
