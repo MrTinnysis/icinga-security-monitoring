@@ -52,11 +52,11 @@ def parse_args():
         help='check log of last period (default: "1h", format 1-99 m/h/d)'
     )
     argumentParser.add_argument(
-        '-w', '--warning', metavar='NUMBER', type=int, default=1,
+        '-w', '--warning', metavar='NUMBER', type=int, required=True,
         help='return warning if number of found log entries is above'
     )
     argumentParser.add_argument(
-        '-c', '--critical', metavar='NUMBER', type=int, default=2,
+        '-c', '--critical', metavar='NUMBER', type=int, required=True,
         help='return critical if number of found logs is above'
     )
     argumentParser.add_argument(
