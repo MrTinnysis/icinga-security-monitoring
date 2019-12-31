@@ -23,7 +23,7 @@ def parse_args():
         help='verbose output'
     )
     argumentParser.add_argument(
-        "-wl", "--white-list", nargs="+", type=list, default=["btrfs", "cifs"],
+        "-wl", "--white-list", nargs="+", type=list, default=["btrfs", "cifs", "nfs"],
         help="Specify a filesystem white list"
     )
 
