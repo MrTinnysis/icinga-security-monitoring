@@ -44,7 +44,7 @@ def get_available_file_systems():
         sys.exit(CRITICAL)
 
     file_systems = re.findall(
-        r"\w{3} \d{2} \d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
+        r"\d{2}:\d{2} (.*?)$", output, flags=re.MULTILINE)
 
     return [fs for fs in file_systems if not fs in blacklist]
 
