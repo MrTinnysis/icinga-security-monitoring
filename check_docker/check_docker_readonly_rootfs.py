@@ -91,11 +91,11 @@ def main() -> None:
             print(
                 f"Container '{container_name}': readonly_rootfs: {readonly_rootfs}")
 
-            # check if readonly rootfs option is set
-            if not readonly_rootfs:
-                print(
-                    f"CRITICAL: Missing 'ReadonlyRootfs' flag on container '{container_name}'")
-                returnCode = CRITICAL
+        # check if readonly rootfs option is set
+        if not readonly_rootfs:
+            print(
+                f"CRITICAL: Missing 'ReadonlyRootfs' flag on container '{container_name}'")
+            returnCode = CRITICAL
 
     if returnCode == OK:
         print(f"OK: All 'ReadonlyRootfs' flags set correctly")
