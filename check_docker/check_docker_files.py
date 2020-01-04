@@ -147,7 +147,7 @@ def main() -> None:
             returnCode = CRITICAL
 
     # check /etc/docker dir
-    etc_docker = "/etc_docker"
+    etc_docker = "/etc/docker"
     if os.path.isdir(etc_docker):
 
         if not check_file_owner(etc_docker, "root:root"):
