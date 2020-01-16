@@ -38,3 +38,322 @@ apply Service "Failed SSH Logins" {
 
     assign where host.name == "RGServer"
 }
+
+object Host "firehousechicago.com" {
+    import "generic-host"
+    display_name = "FireHouseChicago"
+    address = "firehousechicago.com"
+    vars.cert_domain = "firehousechicago.com"
+    vars.cert_issuers = [ "QuoVadis Limited" ]
+}
+
+object Host "apacheserver" {
+    import "generic-host"
+    display_name = "some Apache server"
+    address = "172.16.16.1"
+}
+
+object Host "firehousechicago.com" {
+    import "generic-host"
+    display_name = "FireHouseChicago"
+    address = "firehousechicago.com"
+    vars.cert_domain = "firehousechicago.com"
+    vars.cert_issuers = [ "QuoVadis Limited" ]
+}
+
+object Host "apacheserver" {
+    import "generic-host"
+    display_name = "some Apache server"
+    address = "172.16.16.1"
+}
+
+template Service "5m-interval-service" {
+  max_check_attempts = 3
+  check_interval = 5m
+  retry_interval = 1m
+  enable_perfdata = true
+}
+
+apply Service "Certificate Transparency Logs" {
+    import "5m-interval-service"
+
+    check_command = "check_ct_logs"
+
+    assign where host.name == "www.bfh.ch"
+}
+
+apply Service "Server SSL Rating" {
+    import "5m-interval-service"
+
+    check_command = "check_server_ssl"
+
+    assign where host.name == "firehousechicago.com"
+}
+
+apply Service "CVE" {
+    import "generic-service"
+
+    check_command = "nrpe_check_cve"
+
+    vars.check_cve_arguments = "-e apache2"
+
+    assign where host.name == "apacheserver"
+}
+
+apply Service "File and Directory Protection" {
+    import "generic-service"
+
+    check_command = "nrpe_check_file_directory_protection"
+
+    vars.check_file_directory_protection_arguments = ""
+
+    assign where host.name == "apacheserver"
+}
+
+apply Service "Apache SSL Ciphers" {
+    import "generic-service"
+
+    check_command = "nrpe_check_mod_ssl"
+
+    vars.check_mod_ssl_arguments = ""
+
+    assign where host.name == "apacheserver"
+}
+
+apply Service "Server Token hidden" {
+    import "generic-service"
+
+    check_command = "nrpe_check_srv_token"
+
+    vars.check_srv_token_arguments = "-e -vh \"*:80\""
+
+    assign where host.name == "apacheserver"
+}
+
+apply Service "Apache Rootfolder Permissions" {
+    import "generic-service"
+
+    check_command = "nrpe_check_srv_root"
+
+    vars.check_srv_root_arguments = "-g adm root"
+
+    assign where host.name == "apacheserver"
+}
+apply Service "Honeypot /admin" {
+    import "generic-service"
+
+    check_command = "nrpe_check_honeypot"
+
+    vars.check_honeypot_arguments = "-e -vh \"*:80\" -hp \"/admin\""
+
+    assign where host.name == "apacheserver"
+}
+
+object CheckCommand "check_server_ssl" {
+    command = [ PluginDir + "/check_server_ssl/check_server_ssl.py" ]
+
+    arguments += {
+        "--host" = {
+            required = true
+            value = "$cert_domain$"
+            order = 1
+        }
+    }
+}
+
+object CheckCommand "check_ct_logs" {
+    command = [ PluginDir + "/check_ct_logs/check_ct_logs.py" ]
+
+    arguments += {
+        "--domain" = {
+            required = true
+            value = "$cert_domain$"
+            order = 1
+        }
+        "--issuer" = {
+	    required = true
+	    value = "$cert_issuers$"
+	    order = 2
+	}
+    }
+}
+
+/* remote nrpe checks */
+object CheckCommand "nrpe_check_cve" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_cve"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_cve_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "nrpe_check_file_directory_protection" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_file_directory_protection"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_file_directory_protection_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "nrpe_check_honeypot" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_honeypot"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_honeypot_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "nrpe_check_logs" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_logs"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_logs_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "nrpe_check_mod_ssl" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_mod_ssl"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_mod_ssl_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "nrpe_check_srv_root" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_srv_root"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_srv_root_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "nrpe_check_srv_token" {
+    command = [ PluginDir + "/check_nrpe" ]
+
+    arguments += {
+        "-H" = {
+            required = true
+            value = "$address$"
+            order = 1
+        }
+        "-c" = {
+            required = true
+            value = "check_srv_token"
+            order = 2
+        }
+        "-a" = {
+            value = "$check_srv_token_arguments$"
+            order = 3
+        }
+    }
+}
+
+object CheckCommand "Check Malicious Connections" {
+    import "plugin-check-command"
+    command = [ PluginDir + "/check_network/check_mal_conn.py" ]
+    timeout = 10s
+    arguments += {
+        "-p" = "10m"
+    }
+}
+
+object CheckCommand "Check PortScan" {
+    import "plugin-check-command"
+    command = [ PluginDir + "/check_network/check_port_scan.py" ]
+    timeout = 10s
+    arguments += {
+        "-p" = "5m"
+    }
+}
+
+object Service "Detect Malicious Connections" {
+    host_name = "Demo Host"
+    import "Simple Service"
+
+    check_command = "Check Malicious Connections"
+}
+
+object Service "Detect Port Scan" {
+    host_name = "Demo Host"
+    import "Simple Service"
+
+    check_command = "Check PortScan"
+}

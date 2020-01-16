@@ -116,6 +116,7 @@ def main():
         (ip, entries) = rhost
         # get iterator length (is there no better way??)
         size = sum(1 for _ in entries)
+        #TODO return total as performancedata
         print(f"|{ip}={size};{args.warning};{args.critical}")
 
         if size >= args.warning:

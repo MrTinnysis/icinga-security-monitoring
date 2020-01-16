@@ -29,6 +29,7 @@ def parse_args():
     # corresponding values
     argumentParser = argparse.ArgumentParser()
 
+    # TODO add levels for crit and warn
     argumentParser.add_argument(
         '-v', '--verbose', nargs="?", const=True, default=False,
         help='verbose output'
@@ -109,6 +110,7 @@ def main():
         (ip, entries) = rhost
         # get iterator length (is there no better way??)
         size = sum(1 for _ in entries)
+        # TODO return total as performancedata
         print(f"|{ip}={size}")
 
         if size >= 1:

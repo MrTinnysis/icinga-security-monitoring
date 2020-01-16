@@ -20,6 +20,9 @@ def parse_args():
     argumentParser.add_argument(
         '--verbose', nargs='?', const=True, default=False,
         help='verbose output')
+    argumentParser.add_argument(
+        '--url', metavar='URLs', nargs='+', type=str, required=True,
+        help='whitelist gpgkey fom this urls')
 
     return argumentParser.parse_args()
 
