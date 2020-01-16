@@ -21,7 +21,7 @@ def parse_args():
         '--verbose', nargs='?', const=True, default=False,
         help='verbose output')
     argumentParser.add_argument(
-        '--warning', metavar='GRADE', type=str, default='A',
+        '--warning', metavar='GRADE', type=str, default='A-',
         help='return warning if grade is below')
     argumentParser.add_argument(
         '--critical', metavar='GRADE', type=str, default='B',
@@ -59,30 +59,34 @@ def main():
             resume=False,
             detail=False)
 
+        if arguments.verbose:
+            print(info)
+
         for endpoint in info['endpoints']:
             if grading[endpoint['grade']] > grading[arguments.critical]:
                 criticalCount += 1
-                status += 'CRITICAL: '
             elif grading[endpoint['grade']] > grading[arguments.warning]:
                 warningCount += 1
-                status += 'WARNING: '
-            else:
-                status += 'OK: '
 
-            status += ('ServerName: ' + endpoint['serverName'] +
-                       ' IPAddress: ' + endpoint['ipAddress'] +
+            # ToDo: Add 'serverName' to output if present
+            status += (' IPAddress: ' + endpoint['ipAddress'] +
                        ' Grade: ' + endpoint['grade'] + ';')
 
+        if criticalCount > 0:
+            returnCode = CRITICAL
+            status = 'CRITICAL:' + status
+        elif warningCount > 1:
+            returnCode = WARNING
+            status = 'WARNING:' + status
+        else:
+            returnCode = OK
+            status = 'OK:' + status
+
     except Exception as e:
+        returnCode = CRITICAL
         status = ('CRITICAL: ' + str(e))
 
     print(status)
-    if criticalCount > 0:
-        returnCode = CRITICAL
-    elif warningCount > 1:
-        returnCode = WARNING
-    else:
-        returnCode = OK
     sys.exit(returnCode)
 
 
