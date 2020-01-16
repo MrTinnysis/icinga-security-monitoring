@@ -5,6 +5,7 @@ import argparse
 import sys
 import re
 from requests.auth import HTTPBasicAuth
+from datetime import datetime
 
 # monitoring plugin return codes
 OK = 0
@@ -27,6 +28,9 @@ def parse_args():
     argumentParser.add_argument(
         '--issuer', metavar='ISSUER ORGANISATION NAME', nargs='+', type=str, required=True,
         help='whitelist issuers')
+    argumentParser.add_argument(
+        '--apikey', metavar='APIKEY', nargs='+', type=str, default='',
+        help='Certspotter API Key')
 
     return argumentParser.parse_args()
 
@@ -50,21 +54,34 @@ def main():
 
         certCount = 0
         for cert in response.json():
+            if arguments.verbose:
+                print(cert)
+
             certCount += 1
             issuerOrganisationName = re.findall('O=(.*),', cert['issuer']['name'])[0]
+            validUntil = cert['not_after']
             if issuerOrganisationName not in arguments.issuer:
                 criticalCount += 1
-                status += 'CRITICAL: ' + issuerOrganisationName + ' is not in whitelist!;'
+                status += ' ' + issuerOrganisationName + ' is not in whitelist!;'
+
+            if not validUntil:
+                warningCount += 1
+                status += ' expired;'
 
         if criticalCount > 0:
             returnCode = CRITICAL
+            status = 'CRITICAL:' + status
+        elif warningCount > 0:
+            returnCode = WARNING
+            status = 'WARNING:' + status
         else:
             returnCode = OK
-            status = 'OK: All found issuers are whitelisted.'
+            status = 'OK: All found issuers are whitelisted and no expiring Certificates found.'
 
         performanceData = ' | cert_count=' + str(certCount)
 
     except Exception as e:
+        returnCode = CRITICAL
         status = ('CRITICAL: ' + str(e))
 
     print(status + performanceData)
