@@ -2,8 +2,7 @@
 import re
 import os
 
-# https://github.com/rory/apache-log-parser
-# https://pypi.org/project/apache-log-parser/1.7.0/
+#https://pypi.org/project/apache-log-parser/1.7.0/
 import apache_log_parser
 
 from ApacheConfig import ApacheConfig
