@@ -9,6 +9,7 @@ WARNING = 1
 CRITICAL = 2
 UNKNOWN = 3
 
+
 def parse_args():
     # Parses the CLI Arguments and returns a dict containing the
     # corresponding values
@@ -28,7 +29,6 @@ def parse_args():
 
 
 def main():
-
     # defaults
     returnCode = UNKNOWN
     status = ''
